@@ -16,19 +16,20 @@ public class PostController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult Get()
+    public IActionResult GetPosts()
     {
         return Ok(_context.Posts);
     }
 
-    [HttpGet("{id}")]
-    public IActionResult Get(Guid id)
+    [HttpGet("{id}", Name = "GetPost")]
+    public IActionResult GetPost(Guid id)
     {
-        if (_context.Posts.Find(id) == null)
+        var post = _context.Posts.Find(id);
+        if (post == null)
         {
             return NotFound();
         }
-        return Ok(_context.Posts.Find(id));
+        return Ok(post);
     }
 
     [HttpPost]
