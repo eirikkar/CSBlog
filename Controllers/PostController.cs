@@ -38,5 +38,16 @@ public class PostController : ControllerBase
         return CreatedAtRoute("GetPost", new { Guid = post.Id }, post);
     }
 
+    [HttpPut("{id}")]
+    public IActionResult Put(Guid id, PostModel post)
+    {
+        if (_context.Posts.Find(id) == null)
+        {
+            return NotFound();
+        }
+        _context.Posts.Update(post);
+        _context.SaveChanges();
+        return Ok(post);
+    }
 
 }
