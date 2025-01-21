@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using CSBlog.Data;
 using CSBlog.Models;
-namespace CSBlog.Controllers;
 
 namespace CSBlog.Controllers;
 [ApiController]
@@ -45,14 +44,16 @@ public class PostController : ControllerBase
     [HttpPut("{id}")]
     public IActionResult Put(Guid id, PostModel post)
     {
-        if (_context.Posts.Find(id) == null)
+        var existingPost = _context.Posts.Find(id);
+        if (existingPost == null)
         {
             return NotFound();
         }
-        post.UpdatedAt = DateTime.Now;
-        _context.Posts.Update(post);
+        existingPost.Title = post.Title;
+        existingPost.Content = post.Content;
+        existingPost.UpdatedAt = DateTime.Now;
+        _context.Posts.Update(existingPost);
         _context.SaveChanges();
-        return Ok(post);
+        return Ok(existingPost);
     }
-
 }
