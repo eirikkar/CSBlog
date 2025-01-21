@@ -29,4 +29,14 @@ public class PostController : ControllerBase
         }
         return Ok(_context.Posts.Find(id));
     }
+
+    [HttpPost]
+    public IActionResult Post(PostModel post)
+    {
+        _context.Posts.Add(post);
+        _context.SaveChanges();
+        return CreatedAtRoute("GetPost", new { Guid = post.Id }, post);
+    }
+
+
 }
