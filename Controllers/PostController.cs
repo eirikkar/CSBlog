@@ -15,8 +15,8 @@ public class PostController : ControllerBase
     }
 
     [HttpGet]
-    public IEnumerable<PostModel> Get()
+    public IActionResult Get()
     {
-        return _context.Posts.ToList();
+        return Ok(_context.Posts);
     }
 }
