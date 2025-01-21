@@ -56,4 +56,16 @@ public class PostController : ControllerBase
         _context.SaveChanges();
         return Ok(existingPost);
     }
+    [HttpDelete("{id}")]
+    public IActionResult Delete(Guid id)
+    {
+        var post = _context.Posts.Find(id);
+        if (post == null)
+        {
+            return NotFound();
+        }
+        _context.Posts.Remove(post);
+        _context.SaveChanges();
+        return Ok($"Post with id {id} has been deleted");
+    }
 }
