@@ -5,11 +5,14 @@ namespace CSBlog.Data;
 
 public class AppDbContext : DbContext
 {
+
+    public required DbSet<UserModel> Users { get; set; }
+    public required DbSet<PostModel> Posts { get; set; }
+
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
 
-    public required DbSet<PostModel> Posts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -23,6 +26,15 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Content).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
+            entity.HasOne(e => e.Author).WithMany().HasForeignKey(u => u.Id);
+        });
+        modelBuilder.Entity<UserModel>(entity =>
+        {
+            entity.ToTable("Users");
+            entity.HasKey(u => u.Id);
+            entity.Property(u => u.Username).IsRequired();
+            entity.Property(u => u.Password).IsRequired();
+            entity.Property(u => u.Email).IsRequired();
         });
     }
 
