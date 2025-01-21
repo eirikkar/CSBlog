@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using CSBlog.Models;
+
 namespace CSBlog.Data;
 
 public class AppDbContext : DbContext
