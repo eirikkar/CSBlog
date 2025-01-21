@@ -33,6 +33,8 @@ public class PostController : ControllerBase
     [HttpPost]
     public IActionResult Post(PostModel post)
     {
+        post.CreatedAt = DateTime.Now;
+        post.UpdatedAt = DateTime.Now;
         _context.Posts.Add(post);
         _context.SaveChanges();
         return CreatedAtRoute("GetPost", new { Guid = post.Id }, post);
@@ -45,6 +47,7 @@ public class PostController : ControllerBase
         {
             return NotFound();
         }
+        post.UpdatedAt = DateTime.Now;
         _context.Posts.Update(post);
         _context.SaveChanges();
         return Ok(post);
