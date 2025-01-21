@@ -3,8 +3,9 @@ using CSBlog.Data;
 using CSBlog.Models;
 namespace CSBlog.Controllers;
 
+namespace CSBlog.Controllers;
 [ApiController]
-[Route("[api/posts]")]
+[Route("api/posts")]
 public class PostController : ControllerBase
 {
     private readonly AppDbContext _context;
