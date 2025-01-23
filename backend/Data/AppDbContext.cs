@@ -26,7 +26,6 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Content).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
-            entity.HasOne(e => e.Author).WithMany().HasForeignKey(u => u.Id);
         });
         modelBuilder.Entity<UserModel>(entity =>
         {
