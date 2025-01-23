@@ -27,7 +27,7 @@ public class UserController : ControllerBase
         return Ok(users);
     }
 
-    [HttpGet("{id}", Name = "GetUser")]
+    [HttpGet("{id}", Name = "GetUserById")]
     public async Task<ActionResult> GetUserById(Guid id)
     {
         var user = await _context.Users.FindAsync(id);
@@ -44,7 +44,7 @@ public class UserController : ControllerBase
         user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
-        return CreatedAtRoute("GetUser", new { Guid = user.Id }, user);
+        return CreatedAtRoute("GetUserById", new { id = user.Id }, user);
     }
 
 
