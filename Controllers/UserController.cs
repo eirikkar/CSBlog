@@ -75,6 +75,20 @@ public class UserController : ControllerBase
         await _context.SaveChangesAsync();
         return Ok($"User with id {id} has been deleted");
     }
+    [HttpPost("login")]
+    public async Task<ActionResult> Login(UserModel user)
+    {
+        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == user.Username);
+        if (existingUser == null)
+        {
+            return NotFound();
+        }
+        if (!BCrypt.Net.BCrypt.Verify(user.Password, existingUser.Password))
+        {
+            return Unauthorized();
+        }
+        return Ok(existingUser);
+    }
 
 
 }
