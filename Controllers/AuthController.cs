@@ -5,7 +5,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using CSBlog.Models;
 using CSBlog.Data;
-using Microsoft.Extensions.Configuration;
 
 namespace CSBlog.Controllers
 {
