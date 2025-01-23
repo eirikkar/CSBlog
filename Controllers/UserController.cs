@@ -47,5 +47,20 @@ public class UserController : ControllerBase
         return CreatedAtRoute("GetUserById", new { id = user.Id }, user);
     }
 
+    [HttpPut("{id}")]
+    public async Task<ActionResult> EditUser(UserModel user, Guid id)
+    {
+        var existingUser = await _context.Users.FindAsync(id);
+        if (existingUser == null)
+        {
+            return NotFound();
+        }
 
+        existingUser.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+        existingUser.Username = user.Username;
+        existingUser.Email = user.Email;
+        _context.Users.Update(existingUser);
+        await _context.SaveChangesAsync();
+        return Ok(existingUser);
+    }
 }
