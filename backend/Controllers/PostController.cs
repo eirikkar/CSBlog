@@ -31,7 +31,8 @@ public class PostController : ControllerBase
         }
         return Ok(post);
     }
-    [Authorize]
+
+
     [HttpPost]
     public IActionResult Post(PostModel post)
     {
