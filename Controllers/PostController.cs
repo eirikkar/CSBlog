@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using CSBlog.Data;
 using CSBlog.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CSBlog.Controllers;
 [ApiController]
@@ -30,7 +31,7 @@ public class PostController : ControllerBase
         }
         return Ok(post);
     }
-
+    [Authorize]
     [HttpPost]
     public IActionResult Post(PostModel post)
     {
@@ -41,6 +42,7 @@ public class PostController : ControllerBase
         return CreatedAtRoute("GetPost", new { Guid = post.Id }, post);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public IActionResult Put(Guid id, PostModel post)
     {
@@ -56,6 +58,8 @@ public class PostController : ControllerBase
         _context.SaveChanges();
         return Ok(existingPost);
     }
+
+    [Authorize]
     [HttpDelete("{id}")]
     public IActionResult Delete(Guid id)
     {
