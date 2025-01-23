@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CSBlog.Data;
 using CSBlog.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UserController;
 
@@ -16,6 +17,7 @@ public class UserController : ControllerBase
         _context = context;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<ActionResult> GetUsers()
     {
@@ -27,6 +29,7 @@ public class UserController : ControllerBase
         return Ok(users);
     }
 
+    [Authorize]
     [HttpGet("{id}", Name = "GetUserById")]
     public async Task<ActionResult> GetUserById(Guid id)
     {
@@ -38,6 +41,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult> CreateUser(UserModel user)
     {
@@ -47,6 +51,7 @@ public class UserController : ControllerBase
         return CreatedAtRoute("GetUserById", new { id = user.Id }, user);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult> EditUser(UserModel user, Guid id)
     {
@@ -63,6 +68,8 @@ public class UserController : ControllerBase
         await _context.SaveChangesAsync();
         return Ok(existingUser);
     }
+
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteUser(Guid id)
     {
@@ -75,6 +82,8 @@ public class UserController : ControllerBase
         await _context.SaveChangesAsync();
         return Ok($"User with id {id} has been deleted");
     }
+
+    [Authorize]
     [HttpPost("login")]
     public async Task<ActionResult> Login(UserModel user)
     {
