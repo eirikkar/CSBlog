@@ -1,21 +1,21 @@
-import react, { useeffect, usestate } from "react";
-import { useparams } from "react-router-dom";
-import { getpost } from "./api";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { getPost } from "./api";
 
-const post = () => {
-  const { id } = useparams();
-  const [post, setpost] = usestate(null);
+const Post = () => {
+  const { id } = useParams();
+  const [post, setPost] = useState(null);
 
-  useeffect(() => {
-    async function fetchpost() {
-      const data = await getpost(id);
-      setpost(data);
+  useEffect(() => {
+    async function fetchPost() {
+      const data = await getPost(id);
+      setPost(data);
     }
-    fetchpost();
+    fetchPost();
   }, [id]);
 
   if (!post) {
-    return <div>loading...</div>;
+    return <div>Loading...</div>;
   }
 
   return (
@@ -26,4 +26,4 @@ const post = () => {
   );
 };
 
-export default post;
+export default Post;
