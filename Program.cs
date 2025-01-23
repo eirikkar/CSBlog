@@ -12,7 +12,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+var keyString = jwtSettings["Key"];
+if (string.IsNullOrEmpty(keyString))
+{
+    throw new ArgumentNullException("Jwt:Key", "JWT key is not configured.");
+}
+var key = Encoding.UTF8.GetBytes(keyString);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
