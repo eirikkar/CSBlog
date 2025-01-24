@@ -40,7 +40,7 @@ public class PostController : ControllerBase
         post.UpdatedAt = DateTime.Now;
         _context.Posts.Add(post);
         _context.SaveChanges();
-        return CreatedAtRoute("GetPost", new { Guid = post.Id }, post);
+        return CreatedAtRoute("GetPost", new { id = post.Id }, post);
     }
 
     [Authorize]
