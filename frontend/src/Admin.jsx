@@ -1,21 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getPosts, createPost, updatePost, deletePost } from "./api";
+import { useQuill } from "react-quilljs";
+import "quill/dist/quill.snow.css";
 
 const Admin = () => {
     const [posts, setPosts] = useState([]);
     const [newPost, setNewPost] = useState({ title: "", content: "" });
     const [editPost, setEditPost] = useState(null);
     const navigate = useNavigate();
+    const { quill, quillRef } = useQuill();
 
     useEffect(() => {
         fetchPosts();
     }, []);
 
+    useEffect(() => {
+        if (quill) {
+            quill.on("text-change", () => {
+                if (editPost) {
+                    setEditPost({ ...editPost, content: quill.root.innerHTML });
+                } else {
+                    setNewPost({ ...newPost, content: quill.root.innerHTML });
+                }
+            });
+        }
+    }, [quill, editPost, newPost]);
+
     const fetchPosts = async () => {
         const data = await getPosts();
-        setPosts(data);
         console.log("Fetched posts:", data);
+        setPosts(data);
     };
 
     const handleCreatePost = async () => {
@@ -64,11 +79,7 @@ const Admin = () => {
                     value={newPost.title}
                     onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
                 />
-                <textarea
-                    placeholder="Content"
-                    value={newPost.content}
-                    onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-                />
+                <div ref={quillRef} />
                 <button onClick={handleCreatePost}>Create Post</button>
             </div>
             {editPost && (
@@ -82,13 +93,7 @@ const Admin = () => {
                             setEditPost({ ...editPost, title: e.target.value })
                         }
                     />
-                    <textarea
-                        placeholder="Content"
-                        value={editPost.content}
-                        onChange={(e) =>
-                            setEditPost({ ...editPost, content: e.target.value })
-                        }
-                    />
+                    <div ref={quillRef} />
                     <button onClick={handleUpdatePost}>Update Post</button>
                     <button onClick={() => setEditPost(null)}>Cancel</button>
                 </div>
@@ -96,10 +101,22 @@ const Admin = () => {
             {posts.map((post) => (
                 <div key={post.id} className="post-preview">
                     <h3>
-                        <Link to={`/post/${post.id}`}>{post.title}</Link>
+                        <Link to={`/post/${post.id}`}>{post.title || "Untitled"}</Link>
                     </h3>
-                    <p>{post.content.substring(0, 150)}...</p>
-                    <button onClick={() => setEditPost(post)}>Edit</button>
+                    <p>{post.content?.substring(0, 150) || "No content"}...</p>
+                    <p>Created at: {new Date(post.createdAt).toLocaleString()}</p>
+                    <p>Updated at: {new Date(post.updatedAt).toLocaleString()}</p>
+                    <button
+                        onClick={() =>
+                            setEditPost({
+                                id: post.id,
+                                title: post.title,
+                                content: post.content,
+                            })
+                        }
+                    >
+                        Edit
+                    </button>
                     <button onClick={() => handleDeletePost(post.id)}>Delete</button>
                 </div>
             ))}
