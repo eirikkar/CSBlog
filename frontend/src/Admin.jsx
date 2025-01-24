@@ -9,28 +9,40 @@ const Admin = () => {
     const [newPost, setNewPost] = useState({ title: "", content: "" });
     const [editPost, setEditPost] = useState(null);
     const navigate = useNavigate();
-    const { quill, quillRef } = useQuill();
+    const { quill: newQuill, quillRef: newQuillRef } = useQuill();
+    const { quill: editQuill, quillRef: editQuillRef } = useQuill();
 
     useEffect(() => {
         fetchPosts();
     }, []);
 
     useEffect(() => {
-        if (quill) {
-            quill.on("text-change", () => {
-                if (editPost) {
-                    setEditPost({ ...editPost, content: quill.root.innerHTML });
-                } else {
-                    setNewPost({ ...newPost, content: quill.root.innerHTML });
-                }
+        if (newQuill) {
+            newQuill.on("text-change", () => {
+                setNewPost((prevNewPost) => ({
+                    ...prevNewPost,
+                    content: newQuill.root.innerHTML,
+                }));
             });
         }
-    }, [quill, editPost, newPost]);
+    }, [newQuill]);
+
+    useEffect(() => {
+        if (editQuill && editPost) {
+            editQuill.clipboard.dangerouslyPasteHTML(editPost.content);
+            editQuill.on("text-change", () => {
+                setEditPost((prevEditPost) => ({
+                    ...prevEditPost,
+                    content: editQuill.root.innerHTML,
+                }));
+            });
+        }
+    }, [editQuill, editPost]);
 
     const fetchPosts = async () => {
         const data = await getPosts();
-        console.log("Fetched posts:", data);
         setPosts(data);
+        console.log("Fetched posts:", data);
     };
 
     const handleCreatePost = async () => {
@@ -60,7 +72,6 @@ const Admin = () => {
         navigate("/login");
     };
 
-    // Check if user is logged in
     const token = localStorage.getItem("token");
     if (!token) {
         navigate("/login");
@@ -79,7 +90,7 @@ const Admin = () => {
                     value={newPost.title}
                     onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
                 />
-                <div ref={quillRef} />
+                <div ref={newQuillRef} />
                 <button onClick={handleCreatePost}>Create Post</button>
             </div>
             {editPost && (
@@ -93,7 +104,7 @@ const Admin = () => {
                             setEditPost({ ...editPost, title: e.target.value })
                         }
                     />
-                    <div ref={quillRef} />
+                    <div ref={editQuillRef} />
                     <button onClick={handleUpdatePost}>Update Post</button>
                     <button onClick={() => setEditPost(null)}>Cancel</button>
                 </div>
