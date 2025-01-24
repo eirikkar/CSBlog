@@ -71,6 +71,6 @@ public class PostController : ControllerBase
         }
         _context.Posts.Remove(post);
         _context.SaveChanges();
-        return Ok($"Post with id {id} has been deleted");
+        return Ok(post);
     }
 }
