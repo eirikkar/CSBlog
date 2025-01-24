@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using CSBlog.Data;
 using CSBlog.Models;
 using Microsoft.AspNetCore.Authorization;
+using Ganss.Xss;
 
 namespace CSBlog.Controllers;
 [ApiController]
@@ -10,10 +11,12 @@ namespace CSBlog.Controllers;
 public class PostController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly HtmlSanitizer _htmlSanitizer;
 
     public PostController(AppDbContext context)
     {
         _context = context;
+        _htmlSanitizer = new HtmlSanitizer();
     }
 
     [HttpGet]
@@ -44,6 +47,12 @@ public class PostController : ControllerBase
     {
         post.CreatedAt = DateTime.Now;
         post.UpdatedAt = DateTime.Now;
+        if (post.Title == null || post.Content == null)
+        {
+            return BadRequest();
+        }
+        post.Title = _htmlSanitizer.Sanitize(post.Title);
+        post.Content = _htmlSanitizer.Sanitize(post.Content);
         await _context.Posts.AddAsync(post);
         await _context.SaveChangesAsync();
         return CreatedAtRoute("GetPostById", new { id = post.Id }, post);
@@ -58,8 +67,12 @@ public class PostController : ControllerBase
         {
             return NotFound();
         }
-        existingPost.Title = post.Title;
-        existingPost.Content = post.Content;
+        if (post.Title == null || post.Content == null)
+        {
+            return BadRequest();
+        }
+        existingPost.Title = _htmlSanitizer.Sanitize(post.Title);
+        existingPost.Content = _htmlSanitizer.Sanitize(post.Content);
         existingPost.UpdatedAt = DateTime.Now;
         _context.Posts.Update(existingPost);
         await _context.SaveChangesAsync();
