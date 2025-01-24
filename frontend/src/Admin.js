@@ -15,24 +15,28 @@ const Admin = () => {
     const fetchPosts = async () => {
         const data = await getPosts();
         setPosts(data);
+        console.log("Fetched posts:", data);
     };
 
     const handleCreatePost = async () => {
-        await createPost(newPost);
+        const createdPost = await createPost(newPost);
+        console.log("Created post:", createdPost);
         setNewPost({ title: "", content: "" });
         fetchPosts();
     };
 
     const handleUpdatePost = async () => {
         if (editPost) {
-            await updatePost(editPost.id, editPost);
+            const updatedPost = await updatePost(editPost.id, editPost);
+            console.log("Updated post:", updatedPost);
             setEditPost(null);
             fetchPosts();
         }
     };
 
     const handleDeletePost = async (id) => {
-        await deletePost(id);
+        const deletedPost = await deletePost(id);
+        console.log("Deleted post:", deletedPost);
         fetchPosts();
     };
 
