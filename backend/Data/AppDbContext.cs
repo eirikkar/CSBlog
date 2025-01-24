@@ -34,6 +34,7 @@ public class AppDbContext : DbContext
             entity.Property(u => u.Username).IsRequired();
             entity.Property(u => u.Password).IsRequired();
             entity.Property(u => u.Email).IsRequired();
+            entity.HasIndex(u => u.Username).IsUnique();
         });
     }
 
