@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using CSBlog.Data;
 using CSBlog.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -16,15 +17,20 @@ public class PostController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetPosts()
+    public async Task<IActionResult> GetPosts()
     {
-        return Ok(_context.Posts);
+        var posts = await _context.Posts.ToListAsync();
+        if (posts == null)
+        {
+            return NotFound();
+        }
+        return Ok(posts);
     }
 
-    [HttpGet("{id}", Name = "GetPost")]
-    public IActionResult GetPost(Guid id)
+    [HttpGet("{id}", Name = "GetPostById")]
+    public async Task<IActionResult> GetPostById(Guid id)
     {
-        var post = _context.Posts.Find(id);
+        var post = await _context.Posts.FindAsync(id);
         if (post == null)
         {
             return NotFound();
@@ -32,22 +38,22 @@ public class PostController : ControllerBase
         return Ok(post);
     }
 
-
+    [Authorize]
     [HttpPost]
-    public IActionResult Post(PostModel post)
+    public async Task<IActionResult> Post(PostModel post)
     {
         post.CreatedAt = DateTime.Now;
         post.UpdatedAt = DateTime.Now;
-        _context.Posts.Add(post);
-        _context.SaveChanges();
-        return CreatedAtRoute("GetPost", new { id = post.Id }, post);
+        await _context.Posts.AddAsync(post);
+        await _context.SaveChangesAsync();
+        return CreatedAtRoute("GetPostById", new { id = post.Id }, post);
     }
 
     [Authorize]
     [HttpPut("{id}")]
-    public IActionResult Put(Guid id, PostModel post)
+    public async Task<IActionResult> EditPost(Guid id, PostModel post)
     {
-        var existingPost = _context.Posts.Find(id);
+        var existingPost = await _context.Posts.FindAsync(id);
         if (existingPost == null)
         {
             return NotFound();
@@ -56,21 +62,21 @@ public class PostController : ControllerBase
         existingPost.Content = post.Content;
         existingPost.UpdatedAt = DateTime.Now;
         _context.Posts.Update(existingPost);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return Ok(existingPost);
     }
 
     [Authorize]
     [HttpDelete("{id}")]
-    public IActionResult Delete(Guid id)
+    public async Task<IActionResult> DeletePost(Guid id)
     {
-        var post = _context.Posts.Find(id);
+        var post = await _context.Posts.FindAsync(id);
         if (post == null)
         {
             return NotFound();
         }
         _context.Posts.Remove(post);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return Ok(post);
     }
 }
