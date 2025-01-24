@@ -24,7 +24,7 @@ const Login = () => {
                 const data = await response.json();
                 // Save token and redirect
                 localStorage.setItem("token", data.token);
-                navigate("/home");
+                navigate("/admin");
             } else {
                 setError("Login failed. Please check your username and password.");
             }
