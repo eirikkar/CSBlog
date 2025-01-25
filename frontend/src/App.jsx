@@ -6,18 +6,18 @@ import Post from "./Post";
 import Admin from "./Admin";
 
 function App() {
-    return (
-        <Router>
-            <div className="App">
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/post/:id" element={<Post />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/admin" element={<Admin />} />
-                </Routes>
-            </div>
-        </Router>
-    );
+  return (
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/post/:id" element={<Post />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/admin" element={<Admin />} />
+        </Routes>
+      </div>
+    </Router>
+  );
 }
 
 export default App;
