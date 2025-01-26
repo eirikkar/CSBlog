@@ -1,24 +1,40 @@
 import React, { useEffect, useState } from "react";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
+import "./CreatePost.css";
 
 const CreatePost = ({ onCreate }) => {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [errors, setErrors] = useState({ title: "", content: "" });
+    const [successMessage, setSuccessMessage] = useState("");
     const { quill, quillRef } = useQuill();
 
     useEffect(() => {
         if (quill) {
             const handleTextChange = () => {
                 setContent(quill.root.innerHTML);
-                // Clear content error as user types
-                if (quill.root.innerText.trim().length > 0) {
+                const plainText = quill.root.innerText.trim();
+                if (plainText.length > 0) {
                     setErrors((prevErrors) => ({ ...prevErrors, content: "" }));
+                } else {
+                    setErrors((prevErrors) => ({
+                        ...prevErrors,
+                        content: "Content cannot be empty.",
+                    }));
                 }
             };
 
             quill.on("text-change", handleTextChange);
+
+            // Initial validation
+            const initialPlainText = quill.root.innerText.trim();
+            if (initialPlainText.length === 0) {
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    content: "Content cannot be empty.",
+                }));
+            }
 
             return () => {
                 quill.off("text-change", handleTextChange);
@@ -53,21 +69,38 @@ const CreatePost = ({ onCreate }) => {
         onCreate({ title, content });
         setTitle("");
         setContent("");
-        quill.root.innerHTML = "";
+        if (quill) {
+            quill.setText("");
+        }
         setErrors({ title: "", content: "" });
+        setSuccessMessage("Post created successfully!");
+
+        setTimeout(() => {
+            setSuccessMessage("");
+        }, 5000);
     };
 
     const handleReset = () => {
         setTitle("");
         setContent("");
-        quill.root.innerHTML = "";
+        if (quill) {
+            quill.setText("");
+        }
         setErrors({ title: "", content: "" });
+        setSuccessMessage("");
     };
 
     return (
         <div className="card mb-4">
             <div className="card-body">
                 <h3 className="card-title">Create New Post</h3>
+
+                {/* Success Message */}
+                {successMessage && (
+                    <div className="alert alert-success" role="alert">
+                        {successMessage}
+                    </div>
+                )}
 
                 {/* Title Field */}
                 <div className="mb-3">
@@ -87,9 +120,12 @@ const CreatePost = ({ onCreate }) => {
                                 setErrors((prevErrors) => ({ ...prevErrors, title: "" }));
                             }
                         }}
+                        aria-describedby="titleError"
                     />
                     {errors.title && (
-                        <div className="invalid-feedback">{errors.title}</div>
+                        <div className="invalid-feedback" id="titleError">
+                            {errors.title}
+                        </div>
                     )}
                 </div>
 
@@ -99,13 +135,16 @@ const CreatePost = ({ onCreate }) => {
                         Content
                     </label>
                     <div
-                        ref={quillRef}
-                        style={{ height: "200px" }}
-                        id="postContent"
-                        className={errors.content ? "border border-danger" : ""}
-                    />
+                        className={`quill-wrapper ${errors.content ? "border border-danger" : ""
+                            }`}
+                        aria-describedby="contentError"
+                    >
+                        <div ref={quillRef} style={{ height: "200px" }} id="postContent" />
+                    </div>
                     {errors.content && (
-                        <div className="text-danger mt-2">{errors.content}</div>
+                        <div className="text-danger mt-2" id="contentError">
+                            {errors.content}
+                        </div>
                     )}
                 </div>
 
