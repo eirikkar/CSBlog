@@ -9,6 +9,7 @@ const EditPost = ({ post, onUpdate, onCancel }) => {
 
   useEffect(() => {
     if (quill) {
+      // Initialize the editor with the existing content once
       quill.clipboard.dangerouslyPasteHTML(content);
 
       const handleTextChange = () => {
@@ -21,7 +22,7 @@ const EditPost = ({ post, onUpdate, onCancel }) => {
         quill.off("text-change", handleTextChange);
       };
     }
-  }, [quill, content]);
+  }, [quill]); // Removed 'content' from dependencies
 
   const handleSubmit = () => {
     if (title.trim() === "" || content.trim() === "") {
@@ -32,17 +33,28 @@ const EditPost = ({ post, onUpdate, onCancel }) => {
   };
 
   return (
-    <div>
-      <h3>Edit Post</h3>
-      <input
-        type="text"
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <div ref={quillRef} style={{ height: "200px" }} />
-      <button onClick={handleSubmit}>Update Post</button>
-      <button onClick={onCancel}>Cancel</button>
+    <div className="card mb-4">
+      <div className="card-body">
+        <h3 className="card-title">Edit Post</h3>
+        <div className="mb-3">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+        <div ref={quillRef} style={{ height: "200px" }} />
+        <div className="mt-3">
+          <button className="btn btn-success me-2" onClick={handleSubmit}>
+            Update Post
+          </button>
+          <button className="btn btn-secondary" onClick={onCancel}>
+            Cancel
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
