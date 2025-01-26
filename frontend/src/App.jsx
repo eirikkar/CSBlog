@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Navbar from "./Navbar";
 import Login from "./Login";
 import Home from "./Home";
 import Post from "./Post";
@@ -8,7 +9,8 @@ import Admin from "./Admin";
 function App() {
   return (
     <Router>
-      <div className="App">
+      <Navbar />
+      <div className="container mt-4">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/post/:id" element={<Post />} />
