@@ -14,7 +14,7 @@ const Navbar = () => {
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
         <Link className="navbar-brand" to="/">
-          MyModernBlog
+          Eiriks blogg
         </Link>
         <button
           className="navbar-toggler"

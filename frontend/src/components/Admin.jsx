@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getPosts, createPost, updatePost, deletePost } from "./api";
+import { getPosts, createPost, updatePost, deletePost } from "../api.jsx";
 import CreatePost from "./CreatePost";
 import EditPost from "./EditPost";
 import ConfirmDialog from "./ConfirmDialog";

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getPosts } from "./api";
+import { getPosts } from "../api.jsx";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
@@ -19,12 +19,14 @@ const Home = () => {
 
   return (
     <div className="mt-4">
-      <div className="row">
+      <div className="row justify-content-center">
         {posts.map((post) => (
-          <div key={post.id} className="col-md-6 col-lg-4 mb-4">
+          <div key={post.id} className="col-md-8 col-lg-6 mb-4">
             <div className="card h-100 shadow-sm">
-              {/* If you have an image, include it here */}
-              {/* <img src={post.imageUrl} className="card-img-top" alt={post.title} /> */}
+              {/* Optional Image Section */}
+              {/* {post.imageUrl && (
+                <img src={post.imageUrl} className="card-img-top" alt={post.title} />
+              )} */}
               <div className="card-body d-flex flex-column">
                 <h5 className="card-title">{post.title || "Untitled"}</h5>
                 <p className="card-text">
