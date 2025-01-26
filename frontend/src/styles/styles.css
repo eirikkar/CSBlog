@@ -1,26 +1,13 @@
-/* styles.css */
-
 /* Ensure that all card images fit neatly */
 .card-img-top {
   object-fit: cover;
   height: 200px;
 }
 
-/* Smooth transition for buttons */
 .btn {
   transition: background-color 0.3s ease;
 }
 
 .btn:hover {
   opacity: 0.8;
-}
-
-/* Custom footer */
-.footer {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  height: 60px;
-  /* Height of the footer */
-  background-color: #f8f9fa;
 }
