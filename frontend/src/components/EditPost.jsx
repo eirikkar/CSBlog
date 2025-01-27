@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
+import "../styles/Admin.css";
 
 const EditPost = ({ post, onUpdate, onCancel }) => {
   const [title, setTitle] = useState(post.title);
