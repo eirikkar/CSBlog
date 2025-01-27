@@ -30,17 +30,19 @@ const Post = () => {
   }
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 mb-5">
+      {" "}
+      {/* Added mb-5 for bottom margin */}
       <div className="d-flex justify-content-center">
-        <div className="col-md-8 col-lg-6">
+        <div className="col-md-8 col-lg-12">
           <Link to="/" className="btn btn-secondary mb-4">
             &larr; Back to Home
           </Link>
           <div className="card shadow-sm">
             {/* Optional Image Section */}
             {/* {post.imageUrl && (
-              <img src={post.imageUrl} className="card-img-top" alt={post.title} />
-            )} */}
+            <img src={post.imageUrl} className="card-img-top" alt={post.title} />
+          )} */}
             <div className="card-body">
               <h2 className="card-title mb-4">{post.title || "Untitled"}</h2>
               <div
@@ -50,10 +52,12 @@ const Post = () => {
             </div>
             <div className="card-footer text-muted">
               <div>
-                Posted on: {new Date(post.createdAt).toLocaleDateString()}
+                Posted on:{" "}
+                {new Date(post.createdAt).toLocaleDateString("nb-NO")}
               </div>
               <div>
-                Last updated: {new Date(post.updatedAt).toLocaleDateString()}
+                Last updated:{" "}
+                {new Date(post.updatedAt).toLocaleDateString("nb-NO")}
               </div>
             </div>
           </div>
@@ -62,5 +66,4 @@ const Post = () => {
     </div>
   );
 };
-
 export default Post;

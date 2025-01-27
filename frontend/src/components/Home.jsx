@@ -40,7 +40,8 @@ const Home = () => {
               </div>
               <div className="card-footer bg-transparent border-top-0">
                 <small className="text-muted">
-                  Posted on {new Date(post.createdAt).toLocaleDateString()}
+                  Posted on{" "}
+                  {new Date(post.createdAt).toLocaleDateString("nb-NO")}
                 </small>
               </div>
             </div>
