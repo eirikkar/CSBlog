@@ -9,6 +9,14 @@ export async function getPost(id) {
     const response = await fetch(`${API_URL}/${id}`);
     return response.json();
 }
+export async function searchPosts(keyword) {
+    const response = await fetch(`${API_URL}/search?keyword=${keyword}`);
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+    }
+    return response.json();
+}
 
 export async function createPost(post) {
     const token = localStorage.getItem("token");
