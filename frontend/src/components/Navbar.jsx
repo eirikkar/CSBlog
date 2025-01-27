@@ -20,7 +20,7 @@ const Navbar = () => {
             const results = await searchPosts(searchQuery);
             navigate("/search", { state: { results } });
         } catch (error) {
-            console.error("Error searching posts:", error);
+            navigate("/search", { state: { results: [] } });
         }
     };
 
