@@ -41,6 +41,26 @@ public class PostController : ControllerBase
         return Ok(post);
     }
 
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchPosts([FromQuery] string? keyword)
+    {
+        if (string.IsNullOrEmpty(keyword))
+        {
+            return BadRequest("Keyword cannot be null or empty.");
+        }
+
+        var posts = await _context.Posts
+            .Where(p => (p.Title ?? string.Empty).Contains(keyword) || (p.Content ?? string.Empty).Contains(keyword))
+            .ToListAsync();
+
+        if (posts == null || posts.Count == 0)
+        {
+            return NotFound();
+        }
+
+        return Ok(posts);
+    }
+
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> Post(PostModel post)
