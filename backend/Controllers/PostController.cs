@@ -63,16 +63,20 @@ public class PostController : ControllerBase
 
     [Authorize(Policy = "Admin")]
     [HttpPost]
-    public async Task<IActionResult> Post(PostModel post)
+    public async Task<IActionResult> Post([FromForm] PostModel postInput)
     {
-        post.CreatedAt = DateTime.Now;
-        post.UpdatedAt = DateTime.Now;
-        if (post.Title == null || post.Content == null)
+        if (postInput.Title == null || postInput.Content == null)
         {
             return BadRequest();
         }
-        post.Title = _htmlSanitizer.Sanitize(post.Title);
-        post.Content = _htmlSanitizer.Sanitize(post.Content);
+        var post = new PostModel
+        {
+            Title = _htmlSanitizer.Sanitize(postInput.Title),
+            Content = _htmlSanitizer.Sanitize(postInput.Content),
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now,
+            ImageUrl = postInput.ImageUrl
+        };
         await _context.Posts.AddAsync(post);
         await _context.SaveChangesAsync();
         return CreatedAtRoute("GetPostById", new { id = post.Id }, post);
