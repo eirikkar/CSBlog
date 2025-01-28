@@ -26,6 +26,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Content).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
+            entity.Property(e => e.ImageUrl);
         });
         modelBuilder.Entity<UserModel>(entity =>
         {
