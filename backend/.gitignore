@@ -8,7 +8,6 @@ appsettings.json
 Data/Database/
 Data/SeedData.cs
 
-
 # User-specific files
 *.rsuser
 *.suo
