@@ -1,94 +1,93 @@
 import React, { useEffect, useState } from "react";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
+import { uploadImage } from "../api";
 import "../styles/CreatePost.css";
 import "../styles/Admin.css";
 
 const CreatePost = ({ onCreate }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [errors, setErrors] = useState({ title: "", content: "" });
+  const [image, setImage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({ title: "", content: "", image: "" });
   const [successMessage, setSuccessMessage] = useState("");
   const { quill, quillRef } = useQuill();
 
   useEffect(() => {
     if (quill) {
       const handleTextChange = () => {
-        setContent(quill.root.innerHTML);
-        const plainText = quill.root.innerText.trim();
-        if (plainText.length > 0) {
-          setErrors((prevErrors) => ({ ...prevErrors, content: "" }));
-        } else {
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            content: "Content cannot be empty.",
-          }));
-        }
+        const html = quill.root.innerHTML;
+        const text = quill.getText().trim();
+        setContent(html);
+        setErrors((prev) => ({
+          ...prev,
+          content: text ? "" : "Content cannot be empty",
+        }));
       };
 
       quill.on("text-change", handleTextChange);
-
-      // Initial validation
-      const initialPlainText = quill.root.innerText.trim();
-      if (initialPlainText.length === 0) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          content: "Content cannot be empty.",
-        }));
-      }
-
-      return () => {
-        quill.off("text-change", handleTextChange);
-      };
+      return () => quill.off("text-change", handleTextChange);
     }
   }, [quill]);
 
-  const handleSubmit = () => {
-    const newErrors = { title: "", content: "" };
-    let isValid = true;
-
-    if (title.trim() === "") {
-      newErrors.title = "Title cannot be empty.";
-      isValid = false;
-    }
-
-    // Strip HTML tags to check if content has actual text
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = content;
-    const plainText = tempDiv.textContent || tempDiv.innerText || "";
-    if (plainText.trim() === "") {
-      newErrors.content = "Content cannot be empty.";
-      isValid = false;
-    }
+  const validateForm = () => {
+    const newErrors = {
+      title: title.trim() ? "" : "Title cannot be empty",
+      content: content.trim() ? "" : "Content cannot be empty",
+      image:
+        image && image.size > 5 * 1024 * 1024
+          ? "File size must be less than 5MB"
+          : "",
+    };
 
     setErrors(newErrors);
+    return !Object.values(newErrors).some((error) => error);
+  };
 
-    if (!isValid) {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm() || isSubmitting) return;
+
+    setIsSubmitting(true);
+
+    try {
+      let imageUrl = "";
+      if (image) {
+        const result = await uploadImage(image);
+        imageUrl = result.fileName;
+      }
+
+      await onCreate({ title, content, imageUrl });
+      setTitle("");
+      setContent("");
+      setImage(null);
+      quill.setText("");
+      setSuccessMessage("Post created successfully!");
+      setTimeout(() => setSuccessMessage(""), 5000);
+    } catch (error) {
+      console.error("Creation failed:", error);
+      setErrors((prev) => ({ ...prev, general: error.message }));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const validTypes = ["image/jpeg", "image/png", "image/gif"];
+    if (!validTypes.includes(file.type)) {
+      setErrors((prev) => ({
+        ...prev,
+        image: "Invalid file type (JPEG, PNG, GIF only)",
+      }));
       return;
     }
 
-    onCreate({ title, content });
-    setTitle("");
-    setContent("");
-    if (quill) {
-      quill.setText("");
-    }
-    setErrors({ title: "", content: "" });
-    setSuccessMessage("Post created successfully!");
-
-    setTimeout(() => {
-      setSuccessMessage("");
-    }, 5000);
-  };
-
-  const handleReset = () => {
-    setTitle("");
-    setContent("");
-    if (quill) {
-      quill.setText("");
-    }
-    setErrors({ title: "", content: "" });
-    setSuccessMessage("");
+    setImage(file);
+    setErrors((prev) => ({ ...prev, image: "" }));
   };
 
   return (
@@ -96,66 +95,82 @@ const CreatePost = ({ onCreate }) => {
       <div className="card-body">
         <h3 className="card-title">Create New Post</h3>
 
-        {/* Success Message */}
         {successMessage && (
-          <div className="alert alert-success" role="alert">
-            {successMessage}
-          </div>
+          <div className="alert alert-success">{successMessage}</div>
+        )}
+        {errors.general && (
+          <div className="alert alert-danger">{errors.general}</div>
         )}
 
-        {/* Title Field */}
         <div className="mb-3">
-          <label htmlFor="postTitle" className="form-label">
-            Title
-          </label>
+          <label className="form-label">Title</label>
           <input
-            type="text"
-            className={`form-control ${errors.title ? "is-invalid" : ""}`}
-            id="postTitle"
-            placeholder="Enter post title"
             value={title}
             onChange={(e) => {
               setTitle(e.target.value);
-              // Clear title error as user types
-              if (e.target.value.trim() !== "") {
-                setErrors((prevErrors) => ({ ...prevErrors, title: "" }));
-              }
+              setErrors((prev) => ({ ...prev, title: "" }));
             }}
-            aria-describedby="titleError"
+            className={`form-control ${errors.title ? "is-invalid" : ""}`}
+            placeholder="Enter post title"
           />
           {errors.title && (
-            <div className="invalid-feedback" id="titleError">
-              {errors.title}
-            </div>
+            <div className="invalid-feedback">{errors.title}</div>
           )}
         </div>
 
-        {/* Content Field */}
         <div className="mb-3">
-          <label htmlFor="postContent" className="form-label">
-            Content
-          </label>
+          <label className="form-label">Content</label>
           <div
-            className={`quill-wrapper ${
-              errors.content ? "border border-danger" : ""
-            }`}
-            aria-describedby="contentError"
+            className={`quill-wrapper ${errors.content ? "border-danger" : ""}`}
           >
-            <div ref={quillRef} style={{ height: "200px" }} id="postContent" />
+            <div ref={quillRef} style={{ height: "200px" }} />
           </div>
           {errors.content && (
-            <div className="text-danger mt-2" id="contentError">
-              {errors.content}
+            <div className="text-danger mt-2">{errors.content}</div>
+          )}
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Featured Image</label>
+          <input
+            type="file"
+            className="form-control"
+            onChange={handleImageChange}
+            accept="image/jpeg, image/png, image/gif"
+          />
+          {errors.image && (
+            <div className="text-danger mt-2">{errors.image}</div>
+          )}
+          {image && (
+            <div className="mt-2">
+              <p className="mb-1">Selected Image: {image.name}</p>
+              <img
+                src={URL.createObjectURL(image)}
+                alt="Preview"
+                className="img-thumbnail"
+                style={{ maxWidth: "200px" }}
+              />
             </div>
           )}
         </div>
 
-        {/* Action Buttons */}
         <div className="mt-3">
-          <button className="btn btn-primary me-2" onClick={handleSubmit}>
-            Create Post
+          <button
+            className="btn btn-primary me-2"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Creating..." : "Create Post"}
           </button>
-          <button className="btn btn-secondary" onClick={handleReset}>
+          <button
+            className="btn btn-secondary"
+            onClick={() => {
+              setTitle("");
+              quill.setText("");
+              setImage(null);
+              setErrors({});
+            }}
+          >
             Reset
           </button>
         </div>

@@ -1,69 +1,88 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getPost } from "../api.jsx";
+import { getPost } from "../api";
 
 const Post = () => {
-  const { id } = useParams();
-  const [post, setPost] = useState(null);
+    const { id } = useParams();
+    const [post, setPost] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        const data = await getPost(id);
-        setPost(data);
-      } catch (error) {
-        console.error("Error fetching post:", error);
-      }
-    };
+    useEffect(() => {
+        const fetchPost = async () => {
+            try {
+                const data = await getPost(id);
+                setPost(data);
+            } catch (error) {
+                setError("Failed to load post. Please try again later.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-    fetchPost();
-  }, [id]);
+        fetchPost();
+    }, [id]);
 
-  if (!post) {
+    if (isLoading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center vh-100">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="alert alert-danger m-4">
+                {error}{" "}
+                <Link to="/" className="alert-link">
+                    Return to Home
+                </Link>
+            </div>
+        );
+    }
+
     return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
+        <div className="container mt-4 mb-5">
+            <Link to="/" className="btn btn-secondary mb-4">
+                &larr; Back to Home
+            </Link>
 
-  return (
-    <div className="mt-4 mb-5">
-      {" "}
-      {/* Added mb-5 for bottom margin */}
-      <div className="d-flex justify-content-center">
-        <div className="col-md-8 col-lg-12">
-          <Link to="/" className="btn btn-secondary mb-4">
-            &larr; Back to Home
-          </Link>
-          <div className="card shadow-sm">
-            {/* Optional Image Section */}
-            {/* {post.imageUrl && (
-            <img src={post.imageUrl} className="card-img-top" alt={post.title} />
-          )} */}
-            <div className="card-body">
-              <h2 className="card-title mb-4">{post.title || "Untitled"}</h2>
-              <div
-                className="card-text"
-                dangerouslySetInnerHTML={{ __html: post.content }}
-              />
+            <div className="card shadow-sm">
+                {post.imageUrl && (
+                    <div className="card-img-top-container">
+                        <img
+                            src={`${post.imageUrl}`}
+                            className="card-img-top"
+                            alt={post.title}
+                            style={{ maxWidth: "100%", height: "auto", objectFit: "contain" }}
+                        />
+                    </div>
+                )}
+
+                <div className="card-body">
+                    <h1 className="card-title mb-4">{post.title || "Untitled Post"}</h1>
+                    <div
+                        className="card-text post-content"
+                        dangerouslySetInnerHTML={{ __html: post.content }}
+                    />
+                </div>
+
+                <div className="card-footer text-muted">
+                    <div className="d-flex justify-content-between">
+                        <div>
+                            Created: {new Date(post.createdAt).toLocaleDateString("nb-NO")}
+                        </div>
+                        <div>
+                            Updated: {new Date(post.updatedAt).toLocaleDateString("nb-NO")}
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div className="card-footer text-muted">
-              <div>
-                Posted on:{" "}
-                {new Date(post.createdAt).toLocaleDateString("nb-NO")}
-              </div>
-              <div>
-                Last updated:{" "}
-                {new Date(post.updatedAt).toLocaleDateString("nb-NO")}
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
+
 export default Post;
