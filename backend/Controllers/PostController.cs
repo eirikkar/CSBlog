@@ -61,7 +61,7 @@ public class PostController : ControllerBase
         return Ok(posts);
     }
 
-    [Authorize]
+    [Authorize(Policy = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Post(PostModel post)
     {
@@ -78,7 +78,7 @@ public class PostController : ControllerBase
         return CreatedAtRoute("GetPostById", new { id = post.Id }, post);
     }
 
-    [Authorize]
+    [Authorize(Policy = "Admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> EditPost(Guid id, PostModel post)
     {
@@ -99,7 +99,7 @@ public class PostController : ControllerBase
         return Ok(existingPost);
     }
 
-    [Authorize]
+    [Authorize(Policy = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePost(Guid id)
     {
