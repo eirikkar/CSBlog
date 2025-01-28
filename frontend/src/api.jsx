@@ -60,3 +60,35 @@ export async function deletePost(id) {
     });
     return response.json();
 }
+
+export async function uploadImage(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch(`http://localhost:5073/api/Image/upload`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+    });
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+    }
+    return response.json();
+}
+
+export async function deleteImage(fileName) {
+    const response = await fetch(`http://localhost:5073/api/Image/${fileName}`, {
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+    }
+    return response.ok;
+}
