@@ -12,11 +12,14 @@ public class PostController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly HtmlSanitizer _htmlSanitizer;
+    private readonly IWebHostEnvironment _env;
 
-    public PostController(AppDbContext context)
+    public PostController(AppDbContext context, IWebHostEnvironment env)
     {
         _context = context;
         _htmlSanitizer = new HtmlSanitizer();
+        _env = env;
+
     }
 
     [HttpGet]
@@ -38,7 +41,19 @@ public class PostController : ControllerBase
         {
             return NotFound();
         }
-        return Ok(post);
+
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+        return Ok(new
+        {
+            post.Id,
+            post.Title,
+            post.Content,
+            ImageUrl = !string.IsNullOrEmpty(post.ImageUrl)
+                ? $"{baseUrl}/uploads/{post.ImageUrl}"
+                : null,
+            post.CreatedAt,
+            post.UpdatedAt
+        });
     }
 
     [HttpGet("search")]
@@ -63,7 +78,7 @@ public class PostController : ControllerBase
 
     [Authorize(Policy = "Admin")]
     [HttpPost]
-    public async Task<IActionResult> Post([FromForm] PostModel postInput)
+    public async Task<IActionResult> Post([FromBody] PostModel postInput)
     {
         if (postInput.Title == null || postInput.Content == null)
         {
@@ -84,7 +99,7 @@ public class PostController : ControllerBase
 
     [Authorize(Policy = "Admin")]
     [HttpPut("{id}")]
-    public async Task<IActionResult> EditPost(Guid id, PostModel post)
+    public async Task<IActionResult> EditPost(Guid id, [FromBody] PostModel post)
     {
         var existingPost = await _context.Posts.FindAsync(id);
         if (existingPost == null)
@@ -112,6 +127,17 @@ public class PostController : ControllerBase
         {
             return NotFound();
         }
+
+        // Delete associated image
+        if (!string.IsNullOrEmpty(post.ImageUrl))
+        {
+            var imagePath = Path.Combine(_env.ContentRootPath, "Uploads", post.ImageUrl);
+            if (System.IO.File.Exists(imagePath))
+            {
+                System.IO.File.Delete(imagePath);
+            }
+        }
+
         _context.Posts.Remove(post);
         await _context.SaveChangesAsync();
         return Ok(post);
