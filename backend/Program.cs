@@ -46,7 +46,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy =>
+    options.AddPolicy("Admin", policy =>
         policy.RequireRole(UserRole.Admin.ToString()));
 });
 builder.Services.AddControllers();
