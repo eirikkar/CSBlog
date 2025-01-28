@@ -113,6 +113,7 @@ public class PostController : ControllerBase
         existingPost.Title = _htmlSanitizer.Sanitize(post.Title);
         existingPost.Content = _htmlSanitizer.Sanitize(post.Content);
         existingPost.UpdatedAt = DateTime.Now;
+        existingPost.ImageUrl = post.ImageUrl;
         _context.Posts.Update(existingPost);
         await _context.SaveChangesAsync();
         return Ok(existingPost);
