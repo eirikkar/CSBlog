@@ -22,33 +22,49 @@ namespace CSBlog.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login(UserModel user)
+        public IActionResult Login(UserModel login)
         {
-            var verifyUser = _context.Users.SingleOrDefault(u => u.Username == user.Username);
-            if (verifyUser != null && BCrypt.Net.BCrypt.Verify(user.Password, verifyUser.Password))
+            var user = _context.Users.SingleOrDefault(u => u.Username == login.Username);
+            if (user != null && BCrypt.Net.BCrypt.Verify(user.Password, login.Password))
             {
                 if (string.IsNullOrEmpty(user.Username))
                 {
                     return BadRequest("Username is required.");
                 }
 
-                var token = GenerateJwtToken(user.Username);
-                return Ok(new { token });
+                var token = GenerateJwtToken(user);
+                return Ok(new { token, role = user.Role.ToString() });
             }
             return Unauthorized();
         }
 
-        private string GenerateJwtToken(string username)
+        [HttpGet("verify")]
+        public IActionResult VerifyToken(JwtSecurityToken token)
         {
-            if (string.IsNullOrEmpty(username))
+            if (token == null)
             {
-                throw new ArgumentNullException(nameof(username), "Username is required.");
+                return BadRequest("Token is required.");
+            }
+            else
+
+            {
+                return Ok();
+            }
+        }
+
+
+        private string GenerateJwtToken(UserModel user)
+        {
+            if (string.IsNullOrEmpty(user.Username))
+            {
+                throw new ArgumentNullException(nameof(user.Username), "Username is required.");
             }
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Role, user.Role.ToString())
             };
 
             var keyString = _configuration["Jwt:Key"];
