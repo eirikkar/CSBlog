@@ -6,7 +6,6 @@ namespace CSblog.Controller;
 
 [ApiController]
 [Route("api/[Controller]")]
-[Authorize(Policy = "Admin")]
 public class ImageController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -18,6 +17,7 @@ public class ImageController : ControllerBase
         _env = env;
     }
 
+    [Authorize(Policy = "Admin")]
     [HttpPost("upload")]
     public async Task<IActionResult> Upload(IFormFile file)
     {
@@ -52,6 +52,7 @@ public class ImageController : ControllerBase
         return Ok(new { fileName });
     }
 
+    [Authorize(Policy = "Admin")]
     [HttpDelete("{fileName}")]
     public IActionResult Delete(string fileName)
     {
