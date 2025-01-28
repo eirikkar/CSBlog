@@ -25,7 +25,7 @@ namespace CSBlog.Controllers
         public IActionResult Login(UserModel login)
         {
             var user = _context.Users.SingleOrDefault(u => u.Username == login.Username);
-            if (user != null && BCrypt.Net.BCrypt.Verify(user.Password, login.Password))
+            if (user != null && BCrypt.Net.BCrypt.Verify(login.Password, user.Password))
             {
                 if (string.IsNullOrEmpty(user.Username))
                 {
