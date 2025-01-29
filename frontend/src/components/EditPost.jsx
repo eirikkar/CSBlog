@@ -1,125 +1,146 @@
 import React, { useEffect, useState } from "react";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
-import { uploadImage, deleteImage } from "../api";
-import "../styles/Admin.css";
+import { uploadImage, deleteImage, updatePost } from "../api";
 
 const EditPost = ({ post, onUpdate, onCancel }) => {
-  const [title, setTitle] = useState(post.title);
-  const [content, setContent] = useState(post.content);
-  const [image, setImage] = useState(null);
-  const [existingImage, setExistingImage] = useState(post.imageUrl);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState({});
-  const { quill, quillRef } = useQuill();
+    const [title, setTitle] = useState(post.title);
+    const [content, setContent] = useState(post.content);
+    const [image, setImage] = useState(null);
+    const [existingImage, setExistingImage] = useState(post.imageUrl);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errors, setErrors] = useState({});
+    const { quill, quillRef } = useQuill();
 
-  useEffect(() => {
-    if (quill) {
-      quill.clipboard.dangerouslyPasteHTML(post.content);
-      quill.on("text-change", () => setContent(quill.root.innerHTML));
-    }
-  }, [quill]);
+    useEffect(() => {
+        if (quill) {
+            quill.clipboard.dangerouslyPasteHTML(post.content);
+            quill.on("text-change", () => setContent(quill.root.innerHTML));
+        }
+    }, [quill, post.content]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!title.trim() || !content.trim()) {
-      setErrors({ general: "Title and content are required" });
-      return;
-    }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!title.trim() || !content.trim()) {
+            setErrors({ general: "Title and content are required" });
+            return;
+        }
 
-    setIsSubmitting(true);
+        setIsSubmitting(true);
 
-    try {
-      let newImage = existingImage;
+        try {
+            let imageUrl = existingImage;
 
-      if (image) {
-        const uploaded = await uploadImage(image);
-        newImage = uploaded.fileName;
-        if (existingImage) await deleteImage(existingImage);
-      }
+            // Upload new image if provided
+            if (image) {
+                const uploaded = await uploadImage(image);
+                imageUrl = uploaded.fileName;
 
-      await onUpdate({
-        ...post,
-        title,
-        content,
-        imageUrl: newImage,
-      });
-    } catch (error) {
-      console.error("Update failed:", error);
-      setErrors({ general: error.message });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+                // Delete old image if exists
+                if (existingImage) {
+                    await deleteImage(existingImage);
+                }
+            }
 
-  return (
-    <div className="card mb-4">
-      <div className="card-body">
-        <h3 className="card-title">Edit Post</h3>
+            // Update the post
+            await updatePost(post.id, {
+                title,
+                content,
+                imageUrl: imageUrl || null,
+            });
 
-        {errors.general && (
-          <div className="alert alert-danger">{errors.general}</div>
-        )}
+            onUpdate();
+        } catch (error) {
+            setErrors({ general: error.message });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
-        <div className="mb-3">
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="form-control"
-            placeholder="Post Title"
-          />
-        </div>
+    const handleRemoveImage = async () => {
+        try {
+            if (existingImage) {
+                await deleteImage(existingImage);
+                setExistingImage(null);
+            }
+        } catch (error) {
+            setErrors({ general: error.message });
+        }
+    };
 
-        <div className="mb-3">
-          <div ref={quillRef} style={{ height: "200px" }} />
-        </div>
+    return (
+        <div className="card mb-4">
+            <div className="card-body">
+                <h3 className="card-title">Edit Post</h3>
 
-        <div className="mb-3">
-          <label className="form-label">Update Image</label>
-          <input
-            type="file"
-            className="form-control"
-            onChange={(e) => setImage(e.target.files[0])}
-            accept="image/jpeg, image/png, image/gif"
-          />
+                {errors.general && (
+                    <div className="alert alert-danger">{errors.general}</div>
+                )}
 
-          {existingImage && (
-            <div className="mt-3">
-              <p>Current Image:</p>
-              <img
-                src={`http://localhost:5073/uploads/${existingImage}`}
-                alt="Current"
-                className="img-thumbnail"
-                style={{ maxWidth: "200px" }}
-              />
-              <button
-                className="btn btn-sm btn-danger ms-2"
-                onClick={async () => {
-                  await deleteImage(existingImage);
-                  setExistingImage(null);
-                }}
-              >
-                Remove Image
-              </button>
+                <div className="mb-3">
+                    <input
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="form-control"
+                        placeholder="Post Title"
+                    />
+                </div>
+
+                <div className="mb-3">
+                    <div className="quill-editor">
+                        <div ref={quillRef} />
+                    </div>
+                </div>
+
+                <div className="mb-3">
+                    <label className="form-label">Update Image</label>
+                    <input
+                        type="file"
+                        className="form-control"
+                        onChange={(e) => setImage(e.target.files[0])}
+                        accept="image/*"
+                    />
+
+                    {existingImage && (
+                        <div className="mt-3">
+                            <p>Current Image:</p>
+                            <div className="d-flex align-items-center gap-3">
+                                <img
+                                    src={`http://localhost:5073/uploads/${existingImage}`}
+                                    alt="Current"
+                                    className="img-thumbnail preview-image"
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-danger btn-sm"
+                                    onClick={handleRemoveImage}
+                                >
+                                    Remove Image
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <div className="d-flex gap-2 mt-4">
+                    <button
+                        className="btn btn-success"
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? "Updating..." : "Update Post"}
+                    </button>
+                    <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={onCancel}
+                    >
+                        Cancel
+                    </button>
+                </div>
             </div>
-          )}
         </div>
-
-        <div className="mt-3">
-          <button
-            className="btn btn-success me-2"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Updating..." : "Update Post"}
-          </button>
-          <button className="btn btn-secondary" onClick={onCancel}>
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default EditPost;
