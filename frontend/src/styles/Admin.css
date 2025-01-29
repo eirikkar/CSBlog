@@ -24,22 +24,21 @@
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 75rem;
     margin: 0 auto;
-    padding: 20px;
 }
 
 .card {
-    margin-bottom: 20px;
-    border-radius: 8px;
+    margin-bottom: 1.25rem;
+    border-radius: 0.5rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .card-img-container {
-    height: 200px;
+    height: 12rem;
     overflow: hidden;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
 }
 
 .post-image {
@@ -58,7 +57,7 @@
 }
 
 .preview-image {
-    max-width: 200px;
+    max-width: 12.5rem;
     height: auto;
     margin-top: 10px;
 }
@@ -81,7 +80,7 @@
     background: white;
     padding: 2rem;
     border-radius: 8px;
-    max-width: 400px;
+    max-width: 25rem;
     width: 90%;
 }
 
