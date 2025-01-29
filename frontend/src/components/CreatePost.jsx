@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
 import { uploadImage } from "../api";
@@ -153,6 +154,10 @@ const CreatePost = ({ onCreate }) => {
             </div>
         </div>
     );
+};
+
+CreatePost.propTypes = {
+    onCreate: PropTypes.func.isRequired,
 };
 
 export default CreatePost;
