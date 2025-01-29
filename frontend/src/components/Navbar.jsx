@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { searchPosts } from "../api";
 
@@ -19,7 +19,7 @@ const Navbar = () => {
         try {
             const results = await searchPosts(searchQuery);
             navigate("/search", { state: { results } });
-        } catch (error) {
+        } catch {
             navigate("/search", { state: { results: [] } });
         }
     };
