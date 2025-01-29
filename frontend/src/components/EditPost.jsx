@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
 import { uploadImage, deleteImage, updatePost } from "../api";
@@ -31,12 +32,10 @@ const EditPost = ({ post, onUpdate, onCancel }) => {
         try {
             let imageUrl = existingImage;
 
-            // Upload new image if provided
             if (image) {
                 const uploaded = await uploadImage(image);
                 imageUrl = uploaded.fileName;
 
-                // Delete old image if exists
                 if (existingImage) {
                     await deleteImage(existingImage);
                 }
@@ -141,6 +140,17 @@ const EditPost = ({ post, onUpdate, onCancel }) => {
             </div>
         </div>
     );
+};
+
+EditPost.propTypes = {
+    post: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        title: PropTypes.string.isRequired,
+        content: PropTypes.string.isRequired,
+        imageUrl: PropTypes.string,
+    }).isRequired,
+    onUpdate: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
 };
 
 export default EditPost;
