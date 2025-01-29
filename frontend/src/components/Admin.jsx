@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { getPosts, deletePost, createPost } from "../api";
 import CreatePost from "./CreatePost";
 import EditPost from "./EditPost";
@@ -161,6 +162,12 @@ const Admin = () => {
                                             >
                                                 Delete
                                             </button>
+                                            <Link
+                                                to={`/post/${post.id}`}
+                                                className="btn btn-primary btn-sm me-2"
+                                            >
+                                                Read Post
+                                            </Link>
                                         </div>
                                     </div>
                                     <div className="card-footer bg-transparent">
