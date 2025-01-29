@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getPost } from "../api";
 
@@ -13,7 +13,7 @@ const Post = () => {
             try {
                 const data = await getPost(id);
                 setPost(data);
-            } catch (error) {
+            } catch {
                 setError("Failed to load post. Please try again later.");
             } finally {
                 setIsLoading(false);
