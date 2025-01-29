@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { getPosts, deletePost, createPost } from "../api";
+import { getPosts, deletePost, createPost, deleteImage } from "../api";
 import CreatePost from "./CreatePost";
 import EditPost from "./EditPost";
 import ConfirmDialog from "./ConfirmDialog";
@@ -73,6 +73,10 @@ const Admin = () => {
 
         setIsDeleting(true);
         try {
+            const post = posts.find((p) => p.id === postToDelete);
+            if (post && post.imageUrl) {
+                await deleteImage(post.imageUrl);
+            }
             await deletePost(postToDelete);
             await fetchPosts();
         } catch (error) {
