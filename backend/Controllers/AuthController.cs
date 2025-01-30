@@ -38,6 +38,22 @@ namespace CSBlog.Controllers
             return Unauthorized();
         }
 
+        [HttpGet("GetUser")]
+        public IActionResult GetUser(JwtSecurityToken token)
+        {
+            if (token == null)
+            {
+                return BadRequest("Token is required.");
+            }
+            var username = token.Subject;
+            var user = _context.Users.SingleOrDefault(u => u.Username == username);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
+
         [HttpGet("verify")]
         public IActionResult VerifyToken(JwtSecurityToken token)
         {
