@@ -4,7 +4,11 @@ import { getProfile, updateProfile } from "../api";
 import { Form, Button, Alert, Spinner, Card } from "react-bootstrap";
 
 const EditProfile = () => {
-  const [profile, setProfile] = useState({ name: "", email: "", password: "" });
+  const [profile, setProfile] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -20,7 +24,7 @@ const EditProfile = () => {
 
     getProfile(token)
       .then((data) => {
-        setProfile({ ...data, password: "" }); // Don't pre-fill password
+        setProfile({ ...data, password: "" });
         setLoading(false);
       })
       .catch((error) => {
@@ -32,8 +36,8 @@ const EditProfile = () => {
 
   const validateForm = () => {
     const errors = {};
-    if (!profile.name.trim()) errors.name = "Name is required";
-    if (!profile.email.trim()) errors.email = "Email is required";
+    if (!profile.username?.trim()) errors.username = "Username is required";
+    if (!profile.email?.trim()) errors.email = "Email is required";
     else if (!/^\S+@\S+\.\S+$/.test(profile.email))
       errors.email = "Invalid email format";
     return errors;
@@ -52,13 +56,14 @@ const EditProfile = () => {
 
     // Only send changed fields
     const updateData = {
-      name: profile.name,
+      username: profile.username,
       email: profile.email,
       ...(profile.password && { password: profile.password }),
     };
 
     updateProfile(token, updateData)
       .then((response) => {
+        console.log(updateData);
         setSuccess("Profile updated successfully");
         setError("");
         if (response.token) {
@@ -100,16 +105,16 @@ const EditProfile = () => {
 
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
+              <Form.Label>Username</Form.Label>
               <Form.Control
                 type="text"
-                name="name"
-                value={profile.name}
+                name="username"
+                value={profile.username}
                 onChange={handleChange}
-                isInvalid={!!validationErrors.name}
+                isInvalid={!!validationErrors.username}
               />
               <Form.Control.Feedback type="invalid">
-                {validationErrors.name}
+                {validationErrors.username}
               </Form.Control.Feedback>
             </Form.Group>
 
