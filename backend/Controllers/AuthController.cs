@@ -133,19 +133,62 @@ namespace CSBlog.Controllers
             }
         }
         [HttpGet("verify")]
-        public IActionResult VerifyToken(JwtSecurityToken token)
+        public IActionResult VerifyToken()
         {
-            if (token == null)
+            try
             {
-                return BadRequest("Token is required.");
-            }
-            else
+                var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                if (string.IsNullOrEmpty(token))
+                {
+                    return Unauthorized("Token is required");
+                }
 
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+
+
+                // Configure token validation parameters
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = _configuration["Jwt:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = _configuration["Jwt:Audience"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero // No tolerance for expiration time
+                };
+
+                // Validate token
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+
+                // Additional check for token expiration
+                if (validatedToken.ValidTo < DateTime.UtcNow)
+                {
+                    return Unauthorized("Token has expired");
+                }
+
+                // Optionally check if user exists in database
+                var username = principal.Identity?.Name;
+                var userExists = _context.Users.Any(u => u.Username == username);
+
+                return userExists ? Ok() : Unauthorized("User no longer exists");
+            }
+            catch (SecurityTokenExpiredException)
             {
-                return Ok();
+                return Unauthorized("Token has expired");
+            }
+            catch (SecurityTokenValidationException)
+            {
+                return Unauthorized("Invalid token");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
 
         private string GenerateJwtToken(UserModel user)
         {
