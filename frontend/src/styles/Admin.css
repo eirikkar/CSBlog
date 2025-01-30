@@ -35,10 +35,9 @@
 }
 
 .card-img-container {
-    height: 12rem;
-    overflow: hidden;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
+    height: 20vh;
+    min-height: 150px;
+    max-height: 300px;
 }
 
 .post-image {
