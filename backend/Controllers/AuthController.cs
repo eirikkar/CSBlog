@@ -1,4 +1,5 @@
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
@@ -38,7 +39,7 @@ namespace CSBlog.Controllers
             return Unauthorized();
         }
 
-        [HttpGet("GetUser")]
+        [HttpGet("getuser")]
         public IActionResult GetUser()
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
@@ -47,70 +48,90 @@ namespace CSBlog.Controllers
                 return BadRequest("Token is required.");
             }
 
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
-            var username = jwtToken.Subject;
-
-            var user = _context.Users.SingleOrDefault(u => u.Username == username);
-            if (user == null)
+            try
             {
-                return NotFound();
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+                var username = jwtToken.Subject;
+
+                var user = _context.Users
+                    .AsNoTracking()
+                    .SingleOrDefault(u => u.Username == username);
+
+                return user == null ? NotFound() : Ok(new
+                {
+                    user.Username,
+                    user.Email,
+                });
             }
-            return Ok(user);
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
-        [HttpPut("EditUser")]
+        [HttpPut("edituser")]
         public IActionResult EditUser([FromBody] UserModel userUpdate)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            if (string.IsNullOrEmpty(token))
+            try
             {
-                return BadRequest("Token is required.");
-            }
-
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
-            var username = jwtToken.Subject;
-
-            var existingUser = _context.Users.SingleOrDefault(u => u.Username == username);
-            if (existingUser == null)
-            {
-                return NotFound();
-            }
-
-            // Update username only if changed
-            if (!string.IsNullOrWhiteSpace(userUpdate.Username) &&
-                !userUpdate.Username.Equals(existingUser.Username, StringComparison.OrdinalIgnoreCase))
-            {
-                if (_context.Users.Any(u => u.Username == userUpdate.Username))
+                var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                if (string.IsNullOrEmpty(token))
                 {
-                    return BadRequest("Username already taken");
+                    return BadRequest("Token is required.");
                 }
-                existingUser.Username = userUpdate.Username;
-            }
 
-            if (!string.IsNullOrWhiteSpace(userUpdate.Email))
-            {
-                existingUser.Email = userUpdate.Email;
-            }
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+                var oldUsername = jwtToken.Subject;
 
-            if (!string.IsNullOrWhiteSpace(userUpdate.Password))
-            {
-                existingUser.Password = BCrypt.Net.BCrypt.HashPassword(userUpdate.Password);
-            }
+                var existingUser = _context.Users
+                    .SingleOrDefault(u => u.Username == oldUsername);
 
-            _context.SaveChanges();
+                if (existingUser == null) return NotFound();
 
-            // Generate new token if username changed
-            if (existingUser.Username != username)
-            {
+                // Update username
+                if (!string.IsNullOrWhiteSpace(userUpdate.Username) &&
+                    !userUpdate.Username.Equals(oldUsername, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (_context.Users.Any(u => u.Username == userUpdate.Username))
+                    {
+                        return BadRequest("Username already taken");
+                    }
+                    existingUser.Username = userUpdate.Username.Trim();
+                }
+
+                // Update email
+                if (!string.IsNullOrWhiteSpace(userUpdate.Email))
+                {
+                    existingUser.Email = userUpdate.Email.Trim();
+                }
+
+                // Update password
+                if (!string.IsNullOrWhiteSpace(userUpdate.Password))
+                {
+                    existingUser.Password = BCrypt.Net.BCrypt.HashPassword(userUpdate.Password);
+                }
+
+                _context.SaveChanges();
+
+                // Always return new token with updated claims
                 var newToken = GenerateJwtToken(existingUser);
-                return Ok(new { token = newToken });
+                return Ok(new
+                {
+                    token = newToken,
+                    user = new
+                    {
+                        existingUser.Username,
+                        existingUser.Email,
+                    }
+                });
             }
-
-            return Ok(new { message = "Profile updated successfully" });
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
-
         [HttpGet("verify")]
         public IActionResult VerifyToken(JwtSecurityToken token)
         {
