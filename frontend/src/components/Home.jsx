@@ -1,78 +1,78 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getPosts } from "../api.jsx";
+import { getPosts, getImageUrl } from "../api.jsx";
 
 const Home = () => {
-    const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState([]);
 
-    useEffect(() => {
-        async function fetchPosts() {
-            try {
-                const data = await getPosts();
-                setPosts(data);
-            } catch (error) {
-                console.error("Error fetching posts:", error);
-            }
-        }
-        fetchPosts();
-    }, []);
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        const data = await getPosts();
+        setPosts(data);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    }
+    fetchPosts();
+  }, []);
 
-    return (
-        <div className="mt-4">
-            <div className="row justify-content-center">
-                {posts.map((post) => (
-                    <div key={post.id} className="col-md-8 col-lg-6 mb-4">
-                        <div className="card h-100 shadow-sm">
-                            {post.imageUrl && (
-                                <div
-                                    className="card-img-container"
-                                    style={{
-                                        height: "200px",
-                                        overflow: "hidden",
-                                        borderTopLeftRadius: "calc(0.25rem - 1px)",
-                                        borderTopRightRadius: "calc(0.25rem - 1px)",
-                                    }}
-                                >
-                                    <img
-                                        src={`http://localhost:5073/uploads/${post.imageUrl}`}
-                                        className="img-fluid h-100 w-100 object-fit-cover"
-                                        alt={post.title}
-                                        style={{
-                                            objectFit: "cover",
-                                            objectPosition: "center",
-                                        }}
-                                    />
-                                </div>
-                            )}
-                            <div className="card-body d-flex flex-column">
-                                <h5 className="card-title">{post.title || "Untitled"}</h5>
-                                <p className="card-text">
-                                    {stripHtml(post.content).substring(0, 150)}...
-                                </p>
-                                <div className="mt-auto">
-                                    <Link to={`/post/${post.id}`} className="btn btn-primary">
-                                        Read More
-                                    </Link>
-                                </div>
-                            </div>
-                            <div className="card-footer bg-transparent border-top-0">
-                                <small className="text-muted">
-                                    Posted on{" "}
-                                    {new Date(post.createdAt).toLocaleDateString("nb-NO")}
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                ))}
+  return (
+    <div className="mt-4">
+      <div className="row justify-content-center">
+        {posts.map((post) => (
+          <div key={post.id} className="col-md-8 col-lg-6 mb-4">
+            <div className="card h-100 shadow-sm">
+              {post.imageUrl && (
+                <div
+                  className="card-img-container"
+                  style={{
+                    height: "200px",
+                    overflow: "hidden",
+                    borderTopLeftRadius: "calc(0.25rem - 1px)",
+                    borderTopRightRadius: "calc(0.25rem - 1px)",
+                  }}
+                >
+                  <img
+                    src={getImageUrl(post.imageUrl)}
+                    className="img-fluid h-100 w-100 object-fit-cover"
+                    alt={post.title}
+                    style={{
+                      objectFit: "cover",
+                      objectPosition: "center",
+                    }}
+                  />
+                </div>
+              )}
+              <div className="card-body d-flex flex-column">
+                <h5 className="card-title">{post.title || "Untitled"}</h5>
+                <p className="card-text">
+                  {stripHtml(post.content).substring(0, 150)}...
+                </p>
+                <div className="mt-auto">
+                  <Link to={`/post/${post.id}`} className="btn btn-primary">
+                    Read More
+                  </Link>
+                </div>
+              </div>
+              <div className="card-footer bg-transparent border-top-0">
+                <small className="text-muted">
+                  Posted on{" "}
+                  {new Date(post.createdAt).toLocaleDateString("nb-NO")}
+                </small>
+              </div>
             </div>
-        </div>
-    );
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 const stripHtml = (html) => {
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
+  const tmp = document.createElement("DIV");
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || "";
 };
 
 export default Home;
