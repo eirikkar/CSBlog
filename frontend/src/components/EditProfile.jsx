@@ -54,7 +54,6 @@ const EditProfile = () => {
     setValidationErrors({});
     const token = localStorage.getItem("token");
 
-    // Only send changed fields
     const updateData = {
       username: profile.username,
       email: profile.email,
@@ -63,7 +62,6 @@ const EditProfile = () => {
 
     updateProfile(token, updateData)
       .then((response) => {
-        console.log(updateData);
         setSuccess("Profile updated successfully");
         setError("");
         if (response.token) {
@@ -80,7 +78,6 @@ const EditProfile = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProfile((prev) => ({ ...prev, [name]: value }));
-    // Clear validation errors when user types
     if (validationErrors[name]) {
       setValidationErrors((prev) => ({ ...prev, [name]: "" }));
     }
