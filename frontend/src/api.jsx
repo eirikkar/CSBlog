@@ -107,28 +107,31 @@ export async function deleteImage(fileName) {
     }
     return true;
 }
-export async function updateProfile(user) {
-    const token = localStorage.getItem("token");
-    const response = await fetch(`${USER_URL}/${user}`, {
+
+export async function getProfile(token) {
+    const response = await fetch(`http://localhost:5073/api/auth/getuser`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+    }
+
+    return response.json();
+}
+
+export async function updateProfile(token, user) {
+    const response = await fetch(`http://localhost:5073/api/auth/edituser`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(user),
-    });
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText);
-    }
-    return response.json();
-}
-
-export async function getProfile(token) {
-    const response = await fetch(`http://localhost:5073/api/auth/getuser`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
     });
 
     if (!response.ok) {
