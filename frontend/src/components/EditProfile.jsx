@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProfile, updateProfile } from "../api";
+import { Form, Button, Alert, Spinner, Card } from "react-bootstrap";
 
 const EditProfile = () => {
-  const [profile, setProfile] = useState({ name: "", email: "" });
+  const [profile, setProfile] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,61 +19,138 @@ const EditProfile = () => {
     }
 
     getProfile(token)
-      .then((response) => {
-        setProfile(response.data);
+      .then((data) => {
+        setProfile({ ...data, password: "" }); // Don't pre-fill password
         setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching profile data", error);
+        setError("Failed to load profile data");
         setLoading(false);
       });
   }, [navigate]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProfile({ ...profile, [name]: value });
+  const validateForm = () => {
+    const errors = {};
+    if (!profile.name.trim()) errors.name = "Name is required";
+    if (!profile.email.trim()) errors.email = "Email is required";
+    else if (!/^\S+@\S+\.\S+$/.test(profile.email))
+      errors.email = "Invalid email format";
+    return errors;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    setValidationErrors({});
     const token = localStorage.getItem("token");
-    updateProfile(token, profile)
-      .then(() => {
-        alert("Profile updated successfully");
+
+    // Only send changed fields
+    const updateData = {
+      name: profile.name,
+      email: profile.email,
+      ...(profile.password && { password: profile.password }),
+    };
+
+    updateProfile(token, updateData)
+      .then((response) => {
+        setSuccess("Profile updated successfully");
+        setError("");
+        if (response.token) {
+          localStorage.setItem("token", response.token);
+        }
+        setTimeout(() => setSuccess(""), 3000);
       })
       .catch((error) => {
         console.error("Error updating profile", error);
+        setError(error.message || "Failed to update profile");
       });
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile((prev) => ({ ...prev, [name]: value }));
+    // Clear validation errors when user types
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="d-flex justify-content-center mt-5">
+        <Spinner animation="border" />
+      </div>
+    );
   }
 
   return (
-    <div>
-      <h1>Edit Profile</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name:</label>
-          <input
-            type="text"
-            name="name"
-            value={profile.name}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            name="email"
-            value={profile.email}
-            onChange={handleChange}
-          />
-        </div>
-        <button type="submit">Save</button>
-      </form>
+    <div className="container mt-4">
+      <Card className="shadow-sm">
+        <Card.Body>
+          <h2 className="mb-4">Edit Profile</h2>
+
+          {error && <Alert variant="danger">{error}</Alert>}
+          {success && <Alert variant="success">{success}</Alert>}
+
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3">
+              <Form.Label>Name</Form.Label>
+              <Form.Control
+                type="text"
+                name="name"
+                value={profile.name}
+                onChange={handleChange}
+                isInvalid={!!validationErrors.name}
+              />
+              <Form.Control.Feedback type="invalid">
+                {validationErrors.name}
+              </Form.Control.Feedback>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                name="email"
+                value={profile.email}
+                onChange={handleChange}
+                isInvalid={!!validationErrors.email}
+              />
+              <Form.Control.Feedback type="invalid">
+                {validationErrors.email}
+              </Form.Control.Feedback>
+            </Form.Group>
+
+            <Form.Group className="mb-4">
+              <Form.Label>
+                New Password (leave blank to keep current)
+              </Form.Label>
+              <Form.Control
+                type="password"
+                name="password"
+                value={profile.password}
+                onChange={handleChange}
+                placeholder="Enter new password"
+              />
+            </Form.Group>
+
+            <div className="d-flex justify-content-between">
+              <Button variant="primary" type="submit">
+                Update Profile
+              </Button>
+              <Button variant="outline-secondary" onClick={() => navigate(-1)}>
+                Back to Dashboard
+              </Button>
+            </div>
+          </Form>
+        </Card.Body>
+      </Card>
     </div>
   );
 };
