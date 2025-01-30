@@ -39,19 +39,76 @@ namespace CSBlog.Controllers
         }
 
         [HttpGet("GetUser")]
-        public IActionResult GetUser(JwtSecurityToken token)
+        public IActionResult GetUser()
         {
-            if (token == null)
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            if (string.IsNullOrEmpty(token))
             {
                 return BadRequest("Token is required.");
             }
-            var username = token.Subject;
+
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var username = jwtToken.Subject;
+
             var user = _context.Users.SingleOrDefault(u => u.Username == username);
             if (user == null)
             {
                 return NotFound();
             }
             return Ok(user);
+        }
+
+        [HttpPut("EditUser")]
+        public IActionResult EditUser([FromBody] UserModel userUpdate)
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            if (string.IsNullOrEmpty(token))
+            {
+                return BadRequest("Token is required.");
+            }
+
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var username = jwtToken.Subject;
+
+            var existingUser = _context.Users.SingleOrDefault(u => u.Username == username);
+            if (existingUser == null)
+            {
+                return NotFound();
+            }
+
+            // Update username only if changed
+            if (!string.IsNullOrWhiteSpace(userUpdate.Username) &&
+                !userUpdate.Username.Equals(existingUser.Username, StringComparison.OrdinalIgnoreCase))
+            {
+                if (_context.Users.Any(u => u.Username == userUpdate.Username))
+                {
+                    return BadRequest("Username already taken");
+                }
+                existingUser.Username = userUpdate.Username;
+            }
+
+            if (!string.IsNullOrWhiteSpace(userUpdate.Email))
+            {
+                existingUser.Email = userUpdate.Email;
+            }
+
+            if (!string.IsNullOrWhiteSpace(userUpdate.Password))
+            {
+                existingUser.Password = BCrypt.Net.BCrypt.HashPassword(userUpdate.Password);
+            }
+
+            _context.SaveChanges();
+
+            // Generate new token if username changed
+            if (existingUser.Username != username)
+            {
+                var newToken = GenerateJwtToken(existingUser);
+                return Ok(new { token = newToken });
+            }
+
+            return Ok(new { message = "Profile updated successfully" });
         }
 
         [HttpGet("verify")]
