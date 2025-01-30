@@ -1,5 +1,6 @@
 const API_URL = "http://localhost:5073/api/posts";
 const IMAGE_URL = "http://localhost:5073/api/Image";
+const USER_URL = "http://localhost:5073/api/users";
 
 export async function getPosts() {
     const response = await fetch(API_URL);
@@ -105,4 +106,35 @@ export async function deleteImage(fileName) {
         throw new Error(errorText || "Image deletion failed");
     }
     return true;
+}
+export async function updateProfile(user) {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${USER_URL}/${user}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(user),
+    });
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+    }
+    return response.json();
+}
+
+export async function getProfile(token) {
+    const response = await fetch(`http://localhost:5073/api/auth/getuser`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+    }
+
+    return response.json();
 }
