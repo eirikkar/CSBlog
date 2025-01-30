@@ -1,6 +1,5 @@
 const API_URL = "http://localhost:5073/api/posts";
 const IMAGE_URL = "http://localhost:5073/api/Image";
-const USER_URL = "http://localhost:5073/api/users";
 
 export async function getPosts() {
     const response = await fetch(API_URL);
@@ -118,7 +117,7 @@ export async function getProfile(token) {
 
     if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(errorText);
+        throw new Error(errorText || "Failed to fetch profile");
     }
 
     return response.json();
@@ -136,7 +135,7 @@ export async function updateProfile(token, user) {
 
     if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(errorText);
+        throw new Error(errorText || "Failed to update profile");
     }
 
     return response.json();
