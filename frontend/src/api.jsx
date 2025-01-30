@@ -1,17 +1,26 @@
-const API_URL = "http://localhost:5073/api/posts";
-const IMAGE_URL = "http://localhost:5073/api/Image";
+export const backendUrl = import.meta.env.VITE_REACT_APP_BASE_API_URL;
+
+export const getImageUrl = (filename) =>
+    `${import.meta.env.VITE_REACT_APP_BASE_URL}${import.meta.env.VITE_REACT_APP_UPLOADS_PATH}/${filename}`;
 
 export async function getPosts() {
-    const response = await fetch(API_URL);
+    const response = await fetch(`${backendUrl}/posts`);
+    if (!response.ok) {
+        throw new Error("Network response was not ok");
+    }
     return response.json();
 }
 
 export async function getPost(id) {
-    const response = await fetch(`${API_URL}/${id}`);
+    const response = await fetch(`${backendUrl}/posts/${id}`);
+    if (!response.ok) {
+        throw new Error("Network response was not ok");
+    }
     return response.json();
 }
+
 export async function searchPosts(keyword) {
-    const response = await fetch(`${API_URL}/search?keyword=${keyword}`);
+    const response = await fetch(`${backendUrl}/posts/search?keyword=${keyword}`);
     if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText);
@@ -21,7 +30,7 @@ export async function searchPosts(keyword) {
 
 export async function createPost(post) {
     const token = localStorage.getItem("token");
-    const response = await fetch(API_URL, {
+    const response = await fetch(`${backendUrl}/posts`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -38,7 +47,7 @@ export async function createPost(post) {
 
 export async function updatePost(id, post) {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_URL}/${id}`, {
+    const response = await fetch(`${backendUrl}/posts/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -55,7 +64,7 @@ export async function updatePost(id, post) {
 
 export async function deletePost(id) {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_URL}/${id}`, {
+    const response = await fetch(`${backendUrl}/posts/${id}`, {
         method: "DELETE",
         headers: {
             Authorization: `Bearer ${token}`,
@@ -80,7 +89,7 @@ export async function uploadImage(file) {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await fetch(`${IMAGE_URL}/upload`, {
+    const response = await fetch(`${getImageUrl()}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -95,7 +104,7 @@ export async function uploadImage(file) {
 
 export async function deleteImage(fileName) {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${IMAGE_URL}/${fileName}`, {
+    const response = await fetch(`${getImageUrl()}/${fileName}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
     });
@@ -108,7 +117,7 @@ export async function deleteImage(fileName) {
 }
 
 export async function getProfile(token) {
-    const response = await fetch(`http://localhost:5073/api/auth/getuser`, {
+    const response = await fetch(`${backendUrl}/auth/getuser`, {
         headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -124,7 +133,7 @@ export async function getProfile(token) {
 }
 
 export async function updateProfile(token, user) {
-    const response = await fetch(`http://localhost:5073/api/auth/edituser`, {
+    const response = await fetch(`${backendUrl}/auth/edituser`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
