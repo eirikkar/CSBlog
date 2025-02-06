@@ -159,6 +159,7 @@ export async function deleteImage(fileName) {
 }
 
 export async function getProfile(token) {
+  verifyToken();
   const response = await fetch(`${backendUrl}/auth/getuser`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -175,6 +176,7 @@ export async function getProfile(token) {
 }
 
 export async function updateProfile(token, user) {
+  verifyToken();
   const response = await fetch(`${backendUrl}/auth/edituser`, {
     method: "PUT",
     headers: {
