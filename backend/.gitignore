@@ -8,6 +8,7 @@ appsettings.json
 Data/Database/
 Data/SeedData.cs
 Uploads/
+certificates/
 
 # User-specific files
 *.rsuser
