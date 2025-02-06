@@ -152,21 +152,30 @@ export async function updateProfile(token, user) {
 
 export async function verifyToken() {
     const token = localStorage.getItem("token");
+
     if (!token) {
-        throw new Error("No token found");
+        throw new Error("No authentication token found");
     }
 
-    const response = await fetch(`${backendUrl}/auth/verify`, {
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
+    try {
+        const response = await fetch(`${backendUrl}/auth/verify`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
 
-    if (!response.ok) {
-        const error = await response.text().catch(() => "Invalid token");
-        throw new Error(error);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error || data.message || "Token verification failed",
+            );
+        }
+
+        return data;
+    } catch (error) {
+        console.error("Token verification failed:", error);
+        throw error;
     }
-
-    return true;
 }
