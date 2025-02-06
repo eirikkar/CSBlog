@@ -15,7 +15,7 @@ import "../styles/Admin.css";
 
 const Admin = () => {
     const [isLoading, setIsLoading] = useState(true);
-    const [isTokenValid, setIsTokenValid] = useState(true); // Token validity state
+    const [isTokenValid, setIsTokenValid] = useState(true);
     const navigate = useNavigate();
     const [posts, setPosts] = useState([]);
     const [editPost, setEditPost] = useState(null);
@@ -33,19 +33,33 @@ const Admin = () => {
             }
 
             try {
-                await verifyToken(); // Verify the token
-                setIsTokenValid(true); // Token is valid
-                await fetchPosts(); // Fetch posts if token is valid
+                await verifyToken();
+                setIsTokenValid(true);
+                await fetchPosts();
             } catch (error) {
                 console.error("Verification failed:", error);
                 localStorage.removeItem("token");
-                setIsTokenValid(false); // Token is invalid
+                setIsTokenValid(false);
                 navigate("/login");
             } finally {
                 setIsLoading(false);
             }
         };
         verifyAndLoad();
+
+        const intervalId = setInterval(async () => {
+            try {
+                await verifyToken();
+                setIsTokenValid(true);
+            } catch (error) {
+                console.error("Periodic verification failed:", error);
+                localStorage.removeItem("token");
+                setIsTokenValid(false);
+                navigate("/login");
+            }
+        }, 60000);
+
+        return () => clearInterval(intervalId);
     }, [navigate]);
 
     const fetchPosts = async () => {
@@ -62,26 +76,40 @@ const Admin = () => {
 
     const handleLogout = () => {
         localStorage.removeItem("token");
+        setIsTokenValid(false);
         navigate("/login");
     };
 
     const handleCreatePost = async (newPost) => {
         try {
+            await verifyToken();
             const createdPost = await createPost(newPost);
             console.log("Created post:", createdPost);
             fetchPosts();
         } catch (error) {
             console.error("Error creating post:", error);
+            if (error.message === "Invalid token") {
+                handleLogout();
+            }
         }
     };
 
     const handleUpdatePost = async () => {
-        await fetchPosts();
-        setEditPost(null);
+        try {
+            await verifyToken();
+            await fetchPosts();
+            setEditPost(null);
+        } catch (error) {
+            console.error("Error updating post:", error);
+            if (error.message === "Invalid token") {
+                handleLogout();
+            }
+        }
     };
 
     const handleConfirmDelete = async () => {
         try {
+            await verifyToken();
             setIsDeleting(true);
             const post = posts.find((p) => p.id === postToDelete);
 
@@ -91,6 +119,11 @@ const Admin = () => {
 
             await deletePost(postToDelete);
             setPosts((prev) => prev.filter((p) => p.id !== postToDelete));
+        } catch (error) {
+            console.error("Error deleting post:", error);
+            if (error.message === "Invalid token") {
+                handleLogout();
+            }
         } finally {
             setIsDeleting(false);
             setShowConfirmDialog(false);
@@ -119,7 +152,7 @@ const Admin = () => {
     }
 
     if (isLoading) {
-        return <div>Loading...</div>; // Optional loading state
+        return <div>Loading...</div>;
     }
 
     return (
