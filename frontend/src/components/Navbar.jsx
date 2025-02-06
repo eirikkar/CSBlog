@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { searchPosts } from "../api";
+import logo from "../../public/profilbilde.svg"; // Adjust the path as necessary
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -28,7 +29,12 @@ const Navbar = () => {
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
         <Link className="navbar-brand" to="/">
-          Eiriks blogg
+          <img
+            src={logo}
+            alt="Logo"
+            style={{ height: "30px", marginRight: "10px", filter: "invert(1)" }}
+          />
+          Backend Bytes
         </Link>
         <button
           className="navbar-toggler"
