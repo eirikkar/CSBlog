@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
     getPosts,
     deletePost,
     createPost,
     deleteImage,
+    verifyToken,
     getImageUrl,
 } from "../api";
 import CreatePost from "./CreatePost";
@@ -15,42 +15,37 @@ import "../styles/Admin.css";
 
 const Admin = () => {
     const [isLoading, setIsLoading] = useState(true);
+    const [isTokenValid, setIsTokenValid] = useState(true); // Token validity state
     const navigate = useNavigate();
-    const [isTokenValid, setIsTokenValid] = useState(true);
     const [posts, setPosts] = useState([]);
     const [editPost, setEditPost] = useState(null);
     const [postToDelete, setPostToDelete] = useState(null);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleUnauthorizedError = () => {
-        localStorage.removeItem("token");
-        setIsTokenValid(false);
-        navigate("/login");
-    };
-
     useEffect(() => {
-        const verifyToken = async () => {
+        const verifyAndLoad = async () => {
             const token = localStorage.getItem("token");
+
             if (!token) {
                 navigate("/login");
                 return;
             }
 
             try {
-                await getPosts();
-                setIsTokenValid(true);
-                fetchPosts();
+                await verifyToken(); // Verify the token
+                setIsTokenValid(true); // Token is valid
+                await fetchPosts(); // Fetch posts if token is valid
             } catch (error) {
-                if (error.response && error.response.status === 401) {
-                    handleUnauthorizedError();
-                }
+                console.error("Verification failed:", error);
+                localStorage.removeItem("token");
+                setIsTokenValid(false); // Token is invalid
+                navigate("/login");
             } finally {
                 setIsLoading(false);
             }
         };
-
-        verifyToken();
+        verifyAndLoad();
     }, [navigate]);
 
     const fetchPosts = async () => {
@@ -59,9 +54,7 @@ const Admin = () => {
             const posts = await getPosts();
             setPosts(posts);
         } catch (error) {
-            if (error.response && error.response.status === 401) {
-                handleUnauthorizedError();
-            }
+            console.error("Error fetching posts:", error);
         } finally {
             setIsLoading(false);
         }
@@ -71,6 +64,7 @@ const Admin = () => {
         localStorage.removeItem("token");
         navigate("/login");
     };
+
     const handleCreatePost = async (newPost) => {
         try {
             const createdPost = await createPost(newPost);
@@ -122,6 +116,10 @@ const Admin = () => {
                 </button>
             </div>
         );
+    }
+
+    if (isLoading) {
+        return <div>Loading...</div>; // Optional loading state
     }
 
     return (
