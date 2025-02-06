@@ -132,23 +132,31 @@ namespace CSBlog.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
         [HttpGet("verify")]
         public IActionResult VerifyToken()
         {
             try
             {
-                var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "").Trim();
                 if (string.IsNullOrEmpty(token))
                 {
-                    return Unauthorized("Token is required");
+                    return Unauthorized(new { error = "Token is required" });
                 }
 
-
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+                var keyString = _configuration["Jwt:Key"];
+                if (string.IsNullOrEmpty(keyString))
+                {
+                    throw new ArgumentNullException("Jwt:Key", "JWT key is not configured.");
+                }
 
+                // Log the key and token for debugging
+                Console.WriteLine($"Token: {token}");
+                Console.WriteLine($"Key: {keyString}");
 
-                // Configure token validation parameters
+                var key = Encoding.ASCII.GetBytes(keyString);
+
                 var validationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
@@ -158,38 +166,39 @@ namespace CSBlog.Controllers
                     ValidateAudience = true,
                     ValidAudience = _configuration["Jwt:Audience"],
                     ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero // No tolerance for expiration time
+                    ClockSkew = TimeSpan.Zero
                 };
 
-                // Validate token
-                var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+                ClaimsPrincipal principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+                var jwtToken = (JwtSecurityToken)validatedToken;
 
-                // Additional check for token expiration
-                if (validatedToken.ValidTo < DateTime.UtcNow)
+                var usernameClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+                var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+
+                // Log the claims for debugging
+                Console.WriteLine($"Username Claim: {usernameClaim}");
+                Console.WriteLine($"Role Claim: {roleClaim}");
+
+                if (usernameClaim == null)
                 {
-                    return Unauthorized("Token has expired");
+                    return Unauthorized(new { error = "Invalid token" });
                 }
 
-                // Optionally check if user exists in database
-                var username = principal.Identity?.Name;
-                var userExists = _context.Users.Any(u => u.Username == username);
+                var userExists = _context.Users.Any(u => u.Username == usernameClaim);
 
-                return userExists ? Ok() : Unauthorized("User no longer exists");
+                return userExists
+                    ? Ok(new { valid = true, user = usernameClaim })
+                    : Unauthorized(new { error = "User no longer exists" });
             }
             catch (SecurityTokenExpiredException)
             {
-                return Unauthorized("Token has expired");
-            }
-            catch (SecurityTokenValidationException)
-            {
-                return Unauthorized("Invalid token");
+                return Unauthorized(new { error = "Token has expired" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
-
         private string GenerateJwtToken(UserModel user)
         {
             if (string.IsNullOrEmpty(user.Username))
@@ -199,10 +208,10 @@ namespace CSBlog.Controllers
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Role, user.Role.ToString())
-            };
+        new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(ClaimTypes.Role, user.Role.ToString())
+    };
 
             var keyString = _configuration["Jwt:Key"];
             if (string.IsNullOrEmpty(keyString))
@@ -224,4 +233,3 @@ namespace CSBlog.Controllers
         }
     }
 }
-
