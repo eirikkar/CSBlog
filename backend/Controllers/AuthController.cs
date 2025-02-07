@@ -203,7 +203,7 @@ namespace CSBlog.Controllers
             {
         new Claim(JwtRegisteredClaimNames.Sub, user.Username),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        new Claim(ClaimTypes.Role, user.Role.ToString())
+        new Claim(ClaimTypes.Role, user.Role.ToString() ?? "User")
     };
 
             var keyString = _configuration["Jwt:Key"];
