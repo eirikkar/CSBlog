@@ -151,10 +151,6 @@ namespace CSBlog.Controllers
                     throw new ArgumentNullException("Jwt:Key", "JWT key is not configured.");
                 }
 
-                // Log the key and token for debugging
-                Console.WriteLine($"Token: {token}");
-                Console.WriteLine($"Key: {keyString}");
-
                 var key = Encoding.ASCII.GetBytes(keyString);
 
                 var validationParameters = new TokenValidationParameters
@@ -174,10 +170,6 @@ namespace CSBlog.Controllers
 
                 var usernameClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
                 var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
-
-                // Log the claims for debugging
-                Console.WriteLine($"Username Claim: {usernameClaim}");
-                Console.WriteLine($"Role Claim: {roleClaim}");
 
                 if (usernameClaim == null)
                 {
@@ -199,6 +191,7 @@ namespace CSBlog.Controllers
                 return StatusCode(500, new { error = $"Internal server error: {ex.Message}" });
             }
         }
+
         private string GenerateJwtToken(UserModel user)
         {
             if (string.IsNullOrEmpty(user.Username))
