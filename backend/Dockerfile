@@ -25,10 +25,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
 # If you use HTTPS with a certificate, make sure the certificate file is copied to the image
-# Uncomment and update the next line if needed:
 COPY certificates/mycert.pfx ./certificates/mycert.pfx
-
-RUN dotnet dev-certs https --trust
 
 COPY --from=build-env /app/publish .
 
@@ -42,5 +39,6 @@ RUN mkdir -p /app/Data/Database
 RUN mkdir -p /app/Uploads
 
 EXPOSE 5073
+EXPOSE 80
 
 ENTRYPOINT ["dotnet", "CSBlog.dll"]
