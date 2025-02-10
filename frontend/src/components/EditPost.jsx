@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
-import { uploadImage, deleteImage, updatePost } from "../api";
+import { uploadImage, deleteImage, updatePost, getImageUrl } from "../api";
 
 const EditPost = ({ post, onUpdate, onCancel }) => {
     const [title, setTitle] = useState(post.title);
@@ -105,7 +105,7 @@ const EditPost = ({ post, onUpdate, onCancel }) => {
                             <p>Current Image:</p>
                             <div className="d-flex align-items-center gap-3">
                                 <img
-                                    src={`http://localhost:5073/uploads/${existingImage}`}
+                                    src={getImageUrl(existingImage)}
                                     alt="Current"
                                     className="img-thumbnail preview-image"
                                 />
