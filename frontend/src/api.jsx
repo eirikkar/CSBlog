@@ -3,26 +3,8 @@ export const backendUrl = import.meta.env.VITE_REACT_APP_BASE_API_URL;
 export const getImageUrl = (filename) =>
   `${import.meta.env.VITE_REACT_APP_BASE_URL}${import.meta.env.VITE_REACT_APP_UPLOADS_PATH}/${filename}`;
 
-function isTokenPresent() {
-  return localStorage.getItem("token") !== null;
-}
-
 function redirectToLogin() {
   window.location.href = "/login";
-}
-
-async function makeApiRequest(url, options) {
-  try {
-    const response = await fetch(url, options);
-    if (response.status === 401) {
-      // Unauthorized
-      redirectToLogin();
-      return;
-    }
-    return response;
-  } catch (error) {
-    console.error("API request failed", error);
-  }
 }
 
 export async function getPosts() {
