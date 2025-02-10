@@ -8,23 +8,23 @@ import SearchResults from "./components/SearchResults";
 import EditProfile from "./components/EditProfile";
 
 function App() {
-  return (
-    <Router>
-      <Layout>
-        <div className="container mt-4">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/search" element={<SearchResults />} />
-            <Route path="/post/:id" element={<Post />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/edit-profile" element={<EditProfile />} />
-            <Route path="*" element={<h1>Not Found</h1>} />
-          </Routes>
-        </div>
-      </Layout>
-    </Router>
-  );
+    return (
+        <Router>
+            <Layout>
+                <div className="container mt-4">
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/search" element={<SearchResults />} />
+                        <Route path="/post/:id" element={<Post />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/admin" element={<Admin />} />
+                        <Route path="/admin/edit-profile" element={<EditProfile />} />
+                        <Route path="*" element={<h1>Not Found</h1>} />
+                    </Routes>
+                </div>
+            </Layout>
+        </Router>
+    );
 }
 
 export default App;
