@@ -51,12 +51,9 @@ export async function searchPosts(keyword) {
 }
 
 export async function createPost(post) {
-  if (!isTokenPresent()) {
-    redirectToLogin();
-    return;
-  }
+  verifyToken();
   const token = localStorage.getItem("token");
-  const response = await makeApiRequest(`${backendUrl}/posts`, {
+  const response = await fetch(`${backendUrl}/posts`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -72,12 +69,9 @@ export async function createPost(post) {
 }
 
 export async function updatePost(id, post) {
-  if (!isTokenPresent()) {
-    redirectToLogin();
-    return;
-  }
+  verifyToken();
   const token = localStorage.getItem("token");
-  const response = await makeApiRequest(`${backendUrl}/posts/${id}`, {
+  const response = await fetch(`${backendUrl}/posts/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -93,12 +87,9 @@ export async function updatePost(id, post) {
 }
 
 export async function deletePost(id) {
-  if (!isTokenPresent()) {
-    redirectToLogin();
-    return;
-  }
+  verifyToken();
   const token = localStorage.getItem("token");
-  const response = await makeApiRequest(`${backendUrl}/posts/${id}`, {
+  const response = await fetch(`${backendUrl}/posts/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -119,43 +110,56 @@ export async function deletePost(id) {
 }
 
 export async function uploadImage(file) {
-  if (!isTokenPresent()) {
-    redirectToLogin();
-    return;
-  }
+  verifyToken();
   const token = localStorage.getItem("token");
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await makeApiRequest(`${getImageUrl()}`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: formData,
-  });
+  const uploadUrl = `${backendUrl}/image/upload`;
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || "Image upload failed");
+  try {
+    const response = await fetch(uploadUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Image upload failed");
+    }
+
+    const result = await response.json();
+    return result.fileName;
+  } catch (error) {
+    console.error("Image upload failed:", error);
+    throw error;
   }
-  return response.json();
 }
 
 export async function deleteImage(fileName) {
-  if (!isTokenPresent()) {
-    redirectToLogin();
-    return;
-  }
+  verifyToken();
   const token = localStorage.getItem("token");
-  const response = await makeApiRequest(`${getImageUrl()}/${fileName}`, {
-    method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const deleteUrl = `${backendUrl}/image/${fileName}`;
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || "Image deletion failed");
+  try {
+    const response = await fetch(deleteUrl, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Image deletion failed");
+    }
+  } catch (error) {
+    console.error("Image deletion failed:", error);
+    throw error;
   }
-  return true;
 }
 
 export async function getProfile(token) {
