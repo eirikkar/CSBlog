@@ -17,7 +17,7 @@ function redirectToLogin() {
 
 /**
  * Fetches all posts.
- * @returns {Promise<Object[]>} - A promise that resolves to an array of posts.
+ * @returns Array with all posts.
  */
 export async function getPosts() {
     const response = await fetch(`${backendUrl}/posts`);
@@ -30,7 +30,7 @@ export async function getPosts() {
 /**
  * Fetches a single post by ID.
  * @param {string} id - The ID of the post.
- * @returns {Promise<Object>} - A promise that resolves to the post data.
+ * @returns The post data.
  */
 export async function getPost(id) {
     const response = await fetch(`${backendUrl}/posts/${id}`);
@@ -43,7 +43,7 @@ export async function getPost(id) {
 /**
  * Searches for posts by keyword.
  * @param {string} keyword - The search keyword.
- * @returns {Promise<Object[]>} - A promise that resolves to an array of search results.
+ * @returns Array with the results of the search.
  */
 export async function searchPosts(keyword) {
     const response = await fetch(`${backendUrl}/posts/search?keyword=${keyword}`);
@@ -57,7 +57,7 @@ export async function searchPosts(keyword) {
 /**
  * Creates a new post.
  * @param {Object} post - The post data.
- * @returns {Promise<Object>} - A promise that resolves to the created post.
+ * @returns The created post data.
  */
 export async function createPost(post) {
     verifyToken();
@@ -81,7 +81,7 @@ export async function createPost(post) {
  * Updates an existing post by ID.
  * @param {string} id - The ID of the post.
  * @param {Object} post - The updated post data.
- * @returns {Promise<Object>} - A promise that resolves to the updated post.
+ * @returns The updated post data.
  */
 export async function updatePost(id, post) {
     verifyToken();
@@ -104,7 +104,7 @@ export async function updatePost(id, post) {
 /**
  * Deletes a post by ID.
  * @param {string} id - The ID of the post.
- * @returns {Promise<Object>} - A promise that resolves to the deletion result.
+ * @returns The deleted post data.
  */
 export async function deletePost(id) {
     verifyToken();
@@ -132,7 +132,7 @@ export async function deletePost(id) {
 /**
  * Uploads an image file.
  * @param {File} file - The image file to upload.
- * @returns {Promise<string>} - A promise that resolves to the uploaded file name.
+ * @returns The name of the uploaded image file.
  */
 export async function uploadImage(file) {
     verifyToken();
@@ -195,7 +195,7 @@ export async function deleteImage(fileName) {
 /**
  * Fetches the profile data of the authenticated user.
  * @param {string} token - The authentication token.
- * @returns {Promise<Object>} - A promise that resolves to the profile data.
+ * @returns The user data.
  */
 export async function getProfile(token) {
     verifyToken();
@@ -218,7 +218,7 @@ export async function getProfile(token) {
  * Updates the profile data of the authenticated user.
  * @param {string} token - The authentication token.
  * @param {Object} user - The updated user data.
- * @returns {Promise<Object>} - A promise that resolves to the updated profile data.
+ * @returns The updated user data.
  */
 export async function updateProfile(token, user) {
     verifyToken();
@@ -241,7 +241,7 @@ export async function updateProfile(token, user) {
 
 /**
  * Verifies the authentication token.
- * @returns {Promise<Object>} - A promise that resolves to the verification result.
+ * @returns verification status
  */
 export async function verifyToken() {
     const token = localStorage.getItem("token");
