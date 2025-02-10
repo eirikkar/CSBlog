@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { backendUrl } from "../api";
+import { loginUser } from "../api";
 
-/**
- * Login component for user authentication.
- */
 const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -17,7 +14,8 @@ const Login = () => {
 
     /**
      * Handles form submission for login.
-     * @param {Event} e - The form submit event.
+     * Validates input fields and calls the loginUser function.
+     * @param {Event} e - The form submission event.
      */
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -42,27 +40,11 @@ const Login = () => {
         }
 
         try {
-            const response = await fetch(`${backendUrl}/auth/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ username, password }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                localStorage.setItem("token", data.token);
-                navigate("/admin");
-            } else {
-                const errorData = await response.json();
-                setErrors({
-                    general: errorData.message || "Login failed. Please try again.",
-                });
-            }
+            await loginUser(username, password);
+            navigate("/admin");
         } catch (error) {
-            setErrors({ general: "Network error. Please try again later." });
-            console.error("Network error:", error);
+            setErrors({ general: error.message });
+            console.error("Login error:", error);
         }
     };
 
@@ -79,7 +61,6 @@ const Login = () => {
                     </div>
                 )}
                 <form onSubmit={handleSubmit} noValidate>
-                    {/* Username Field */}
                     <div className="mb-3">
                         <label htmlFor="username" className="form-label">
                             Username
@@ -91,7 +72,6 @@ const Login = () => {
                             value={username}
                             onChange={(e) => {
                                 setUsername(e.target.value);
-                                // Clear username error as user types
                                 if (e.target.value.trim() !== "") {
                                     setErrors((prevErrors) => ({ ...prevErrors, username: "" }));
                                 }
@@ -105,7 +85,6 @@ const Login = () => {
                         )}
                     </div>
 
-                    {/* Password Field */}
                     <div className="mb-3">
                         <label htmlFor="password" className="form-label">
                             Password
@@ -130,7 +109,6 @@ const Login = () => {
                         )}
                     </div>
 
-                    {/* Submit Button */}
                     <button type="submit" className="btn btn-primary w-100">
                         Login
                     </button>
