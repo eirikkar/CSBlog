@@ -13,6 +13,10 @@ import EditPost from "./EditPost";
 import ConfirmDialog from "./ConfirmDialog";
 import "../styles/Admin.css";
 
+/**
+ * Admin component for managing blog posts.
+ * Handles fetching, creating, updating, and deleting posts.
+ */
 const Admin = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isTokenValid, setIsTokenValid] = useState(true);
@@ -23,6 +27,10 @@ const Admin = () => {
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
+    /**
+     * useEffect hook to verify token and load posts on component mount.
+     * Also sets up periodic token verification.
+     */
     useEffect(() => {
         const verifyAndLoad = async () => {
             const token = localStorage.getItem("token");
@@ -62,6 +70,9 @@ const Admin = () => {
         return () => clearInterval(intervalId);
     }, [navigate]);
 
+    /**
+     * Fetches posts from the API and updates the state.
+     */
     const fetchPosts = async () => {
         try {
             setIsLoading(true);
@@ -74,12 +85,19 @@ const Admin = () => {
         }
     };
 
+    /**
+     * Handles user logout by removing the token and navigating to login page.
+     */
     const handleLogout = () => {
         localStorage.removeItem("token");
         setIsTokenValid(false);
         navigate("/login");
     };
 
+    /**
+     * Handles creating a new post.
+     * @param {Object} newPost - The new post data.
+     */
     const handleCreatePost = async (newPost) => {
         try {
             await verifyToken();
@@ -94,6 +112,9 @@ const Admin = () => {
         }
     };
 
+    /**
+     * Handles updating a post.
+     */
     const handleUpdatePost = async () => {
         try {
             await verifyToken();
@@ -107,6 +128,9 @@ const Admin = () => {
         }
     };
 
+    /**
+     * Handles confirming the deletion of a post.
+     */
     const handleConfirmDelete = async () => {
         try {
             await verifyToken();
@@ -136,6 +160,11 @@ const Admin = () => {
         }
     };
 
+    /**
+     * Strips HTML tags from a string.
+     * @param {string} html - The HTML string to strip.
+     * @returns {string} - The plain text string.
+     */
     const stripHtml = (html) => {
         const tmp = document.createElement("DIV");
         tmp.innerHTML = html;

@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { backendUrl } from "../api";
 
+/**
+ * Login component for user authentication.
+ */
 const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -12,6 +15,10 @@ const Login = () => {
     });
     const navigate = useNavigate();
 
+    /**
+     * Handles form submission for login.
+     * @param {Event} e - The form submit event.
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({ username: "", password: "", general: "" });

@@ -3,16 +3,26 @@ import { Link, useNavigate } from "react-router-dom";
 import { searchPosts } from "../api";
 import logo from "../assets/profilbilde.svg";
 
+/**
+ * Navbar component for navigation and search functionality.
+ */
 const Navbar = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
     const [searchQuery, setSearchQuery] = useState("");
 
+    /**
+     * Handles user logout by removing the token and navigating to login page.
+     */
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/login");
     };
 
+    /**
+     * Handles search form submission.
+     * @param {Event} e - The form submit event.
+     */
     const handleSearch = async (e) => {
         e.preventDefault();
         if (searchQuery.trim() === "") return;

@@ -4,6 +4,13 @@ import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
 import { uploadImage, deleteImage, updatePost, getImageUrl } from "../api";
 
+/**
+ * EditPost component for editing an existing blog post.
+ * @param {Object} props - The component props.
+ * @param {Object} props.post - The post to edit.
+ * @param {function} props.onUpdate - The function to call when the post is updated.
+ * @param {function} props.onCancel - The function to call when cancelling the edit.
+ */
 const EditPost = ({ post, onUpdate, onCancel }) => {
     const [title, setTitle] = useState(post.title);
     const [content, setContent] = useState(post.content);
@@ -13,6 +20,9 @@ const EditPost = ({ post, onUpdate, onCancel }) => {
     const [errors, setErrors] = useState({});
     const { quill, quillRef } = useQuill();
 
+    /**
+     * useEffect hook to set up Quill editor with existing post content.
+     */
     useEffect(() => {
         if (quill) {
             quill.clipboard.dangerouslyPasteHTML(post.content);
@@ -20,6 +30,10 @@ const EditPost = ({ post, onUpdate, onCancel }) => {
         }
     }, [quill, post.content]);
 
+    /**
+     * Handles form submission to update the post.
+     * @param {Event} e - The form submit event.
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!title.trim() || !content.trim()) {
@@ -55,6 +69,9 @@ const EditPost = ({ post, onUpdate, onCancel }) => {
         }
     };
 
+    /**
+     * Handles removing the existing image.
+     */
     const handleRemoveImage = async () => {
         try {
             if (existingImage) {

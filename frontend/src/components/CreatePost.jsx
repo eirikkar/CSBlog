@@ -5,6 +5,11 @@ import "quill/dist/quill.snow.css";
 import { uploadImage } from "../api";
 import "../styles/CreatePost.css";
 
+/**
+ * CreatePost component for creating a new blog post.
+ * @param {Object} props - The component props.
+ * @param {function} props.onCreate - The function to call when creating a post.
+ */
 const CreatePost = ({ onCreate }) => {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
@@ -14,6 +19,9 @@ const CreatePost = ({ onCreate }) => {
     const [successMessage, setSuccessMessage] = useState("");
     const { quill, quillRef } = useQuill();
 
+    /**
+     * useEffect hook to set up Quill editor text change handler.
+     */
     useEffect(() => {
         if (quill) {
             quill.on("text-change", () => {
@@ -22,6 +30,10 @@ const CreatePost = ({ onCreate }) => {
         }
     }, [quill]);
 
+    /**
+     * Validates the form inputs.
+     * @returns {boolean} - True if the form is valid, false otherwise.
+     */
     const validateForm = () => {
         const newErrors = {};
         if (!title.trim()) newErrors.title = "Title is required";
@@ -34,6 +46,10 @@ const CreatePost = ({ onCreate }) => {
         return Object.keys(newErrors).length === 0;
     };
 
+    /**
+     * Handles form submission.
+     * @param {Event} e - The form submit event.
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm() || isSubmitting) return;
@@ -52,7 +68,6 @@ const CreatePost = ({ onCreate }) => {
                 }
             }
 
-            // Ensure imageUrl is passed correctly
             const post = {
                 title,
                 content,
@@ -69,6 +84,10 @@ const CreatePost = ({ onCreate }) => {
             setIsSubmitting(false);
         }
     };
+
+    /**
+     * Resets the form inputs.
+     */
     const resetForm = () => {
         setTitle("");
         setContent("");
@@ -76,6 +95,10 @@ const CreatePost = ({ onCreate }) => {
         quill.root.innerHTML = "";
     };
 
+    /**
+     * Handles image file input change.
+     * @param {Event} e - The file input change event.
+     */
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (!file) return;

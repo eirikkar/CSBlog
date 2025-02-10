@@ -2,12 +2,18 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getPost } from "../api";
 
+/**
+ * Post component for displaying a single blog post.
+ */
 const Post = () => {
     const { id } = useParams();
     const [post, setPost] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
 
+    /**
+     * useEffect hook to fetch the post data on component mount.
+     */
     useEffect(() => {
         const fetchPost = async () => {
             try {

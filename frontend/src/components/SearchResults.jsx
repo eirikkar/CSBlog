@@ -1,5 +1,8 @@
 import { useLocation } from "react-router-dom";
 
+/**
+ * SearchResults component for displaying search results.
+ */
 const SearchResults = () => {
     const location = useLocation();
     const { results } = location.state || { results: [] };

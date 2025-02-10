@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { getProfile, updateProfile } from "../api";
 import { Form, Button, Alert, Spinner, Card } from "react-bootstrap";
 
+/**
+ * EditProfile component for editing user profile information.
+ */
 const EditProfile = () => {
     const [profile, setProfile] = useState({
         username: "",
@@ -15,6 +18,9 @@ const EditProfile = () => {
     const [validationErrors, setValidationErrors] = useState({});
     const navigate = useNavigate();
 
+    /**
+     * useEffect hook to fetch profile data on component mount.
+     */
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -34,6 +40,10 @@ const EditProfile = () => {
             });
     }, [navigate]);
 
+    /**
+     * Validates the form inputs.
+     * @returns {Object} - An object containing validation errors.
+     */
     const validateForm = () => {
         const errors = {};
         if (!profile.username?.trim()) errors.username = "Username is required";
@@ -43,6 +53,10 @@ const EditProfile = () => {
         return errors;
     };
 
+    /**
+     * Handles form submission to update the profile.
+     * @param {Event} e - The form submit event.
+     */
     const handleSubmit = (e) => {
         e.preventDefault();
         const errors = validateForm();
@@ -75,6 +89,10 @@ const EditProfile = () => {
             });
     };
 
+    /**
+     * Handles input change events.
+     * @param {Event} e - The input change event.
+     */
     const handleChange = (e) => {
         const { name, value } = e.target;
         setProfile((prev) => ({ ...prev, [name]: value }));

@@ -2,9 +2,15 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getPosts, getImageUrl } from "../api.jsx";
 
+/**
+ * Home component for displaying a list of blog posts.
+ */
 const Home = () => {
     const [posts, setPosts] = useState([]);
 
+    /**
+     * useEffect hook to fetch posts on component mount.
+     */
     useEffect(() => {
         async function fetchPosts() {
             try {
@@ -69,6 +75,11 @@ const Home = () => {
     );
 };
 
+/**
+ * Strips HTML tags from a string.
+ * @param {string} html - The HTML string to strip.
+ * @returns {string} - The plain text string.
+ */
 const stripHtml = (html) => {
     const tmp = document.createElement("DIV");
     tmp.innerHTML = html;

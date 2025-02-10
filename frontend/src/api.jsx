@@ -1,12 +1,24 @@
 export const backendUrl = import.meta.env.VITE_REACT_APP_BASE_API_URL;
 
+/**
+ * Constructs the full URL for an image.
+ * @param {string} filename - The name of the image file.
+ * @returns {string} - The full URL of the image.
+ */
 export const getImageUrl = (filename) =>
     `${import.meta.env.VITE_REACT_APP_BASE_URL}${import.meta.env.VITE_REACT_APP_UPLOADS_PATH}/${filename}`;
 
+/**
+ * Redirects the user to the login page.
+ */
 function redirectToLogin() {
     window.location.href = "/login";
 }
 
+/**
+ * Fetches all posts.
+ * @returns {Promise<Object[]>} - A promise that resolves to an array of posts.
+ */
 export async function getPosts() {
     const response = await fetch(`${backendUrl}/posts`);
     if (!response.ok) {
@@ -15,6 +27,11 @@ export async function getPosts() {
     return response.json();
 }
 
+/**
+ * Fetches a single post by ID.
+ * @param {string} id - The ID of the post.
+ * @returns {Promise<Object>} - A promise that resolves to the post data.
+ */
 export async function getPost(id) {
     const response = await fetch(`${backendUrl}/posts/${id}`);
     if (!response.ok) {
@@ -23,6 +40,11 @@ export async function getPost(id) {
     return response.json();
 }
 
+/**
+ * Searches for posts by keyword.
+ * @param {string} keyword - The search keyword.
+ * @returns {Promise<Object[]>} - A promise that resolves to an array of search results.
+ */
 export async function searchPosts(keyword) {
     const response = await fetch(`${backendUrl}/posts/search?keyword=${keyword}`);
     if (!response.ok) {
@@ -32,6 +54,11 @@ export async function searchPosts(keyword) {
     return response.json();
 }
 
+/**
+ * Creates a new post.
+ * @param {Object} post - The post data.
+ * @returns {Promise<Object>} - A promise that resolves to the created post.
+ */
 export async function createPost(post) {
     verifyToken();
     const token = localStorage.getItem("token");
@@ -50,6 +77,12 @@ export async function createPost(post) {
     return response.json();
 }
 
+/**
+ * Updates an existing post by ID.
+ * @param {string} id - The ID of the post.
+ * @param {Object} post - The updated post data.
+ * @returns {Promise<Object>} - A promise that resolves to the updated post.
+ */
 export async function updatePost(id, post) {
     verifyToken();
     const token = localStorage.getItem("token");
@@ -68,6 +101,11 @@ export async function updatePost(id, post) {
     return response.json();
 }
 
+/**
+ * Deletes a post by ID.
+ * @param {string} id - The ID of the post.
+ * @returns {Promise<Object>} - A promise that resolves to the deletion result.
+ */
 export async function deletePost(id) {
     verifyToken();
     const token = localStorage.getItem("token");
@@ -91,6 +129,11 @@ export async function deletePost(id) {
     return response.status === 204 ? {} : response.json();
 }
 
+/**
+ * Uploads an image file.
+ * @param {File} file - The image file to upload.
+ * @returns {Promise<string>} - A promise that resolves to the uploaded file name.
+ */
 export async function uploadImage(file) {
     verifyToken();
     const token = localStorage.getItem("token");
@@ -121,6 +164,11 @@ export async function uploadImage(file) {
     }
 }
 
+/**
+ * Deletes an image file by name.
+ * @param {string} fileName - The name of the image file to delete.
+ * @returns {Promise<void>} - A promise that resolves when the image is deleted.
+ */
 export async function deleteImage(fileName) {
     verifyToken();
     const token = localStorage.getItem("token");
@@ -144,6 +192,11 @@ export async function deleteImage(fileName) {
     }
 }
 
+/**
+ * Fetches the profile data of the authenticated user.
+ * @param {string} token - The authentication token.
+ * @returns {Promise<Object>} - A promise that resolves to the profile data.
+ */
 export async function getProfile(token) {
     verifyToken();
     const response = await fetch(`${backendUrl}/auth/getuser`, {
@@ -161,6 +214,12 @@ export async function getProfile(token) {
     return response.json();
 }
 
+/**
+ * Updates the profile data of the authenticated user.
+ * @param {string} token - The authentication token.
+ * @param {Object} user - The updated user data.
+ * @returns {Promise<Object>} - A promise that resolves to the updated profile data.
+ */
 export async function updateProfile(token, user) {
     verifyToken();
     const response = await fetch(`${backendUrl}/auth/edituser`, {
@@ -180,6 +239,10 @@ export async function updateProfile(token, user) {
     return response.json();
 }
 
+/**
+ * Verifies the authentication token.
+ * @returns {Promise<Object>} - A promise that resolves to the verification result.
+ */
 export async function verifyToken() {
     const token = localStorage.getItem("token");
 
