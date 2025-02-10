@@ -8,10 +8,11 @@
 
 ### Backend
 
-1. Navigate to the backend directory:
+1. Navigate to the backend directory and create a folder for your database:
 
    ```sh
    cd backend
+   mkdir -p /Data/Database
    ```
 
 2. Install the required .NET tools:
