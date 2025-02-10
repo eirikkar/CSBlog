@@ -46,7 +46,6 @@ const Login = () => {
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem("token", data.token);
-                console.log("Token received:", data.token); // Debugging line
                 navigate("/admin");
             } else {
                 const errorData = await response.json();
@@ -111,7 +110,6 @@ const Login = () => {
                             value={password}
                             onChange={(e) => {
                                 setPassword(e.target.value);
-                                // Clear password error as user types
                                 if (e.target.value.trim() !== "") {
                                     setErrors((prevErrors) => ({ ...prevErrors, password: "" }));
                                 }

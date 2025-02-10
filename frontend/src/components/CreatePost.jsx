@@ -45,7 +45,7 @@ const CreatePost = ({ onCreate }) => {
             if (image) {
                 try {
                     const result = await uploadImage(image);
-                    imageUrl = result; // Get the filename from the server
+                    imageUrl = result;
                 } catch (error) {
                     setErrors({ ...errors, image: error.message });
                     throw error;
@@ -56,7 +56,7 @@ const CreatePost = ({ onCreate }) => {
             const post = {
                 title,
                 content,
-                imageUrl: imageUrl || null, // Set to null if no image is uploaded
+                imageUrl: imageUrl || null,
             };
 
             await onCreate(post);
