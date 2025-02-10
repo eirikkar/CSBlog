@@ -46,6 +46,39 @@
    npm install
    ```
 
+## Generating a Certificate
+
+To run the application with HTTPS, you need to create a certificate. Follow these steps:
+
+1. Generate a self-signed certificate:
+
+   ```sh
+   openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
+   ```
+
+2. Convert the certificate to a PFX file:
+
+   ```sh
+   openssl pkcs12 -export -out certificates/mycert.pfx -inkey key.pem -in cert.pem
+   ```
+
+3. Update the `appsettings.json` file with the path to your certificate and its password:
+   ```json
+   "Kestrel": {
+     "Endpoints": {
+       "Https": {
+         "Url": "https://localhost:5073",
+         "Certificate": {
+           "Path": "certificates/mycert.pfx",
+           "Password": "yourCertificatePassword"
+         }
+       }
+     }
+   }
+   ```
+
+Make sure to replace `"yourCertificatePassword"` with the actual password you used when creating the PFX file.
+
 ## Starting the Application
 
 ### Backend
