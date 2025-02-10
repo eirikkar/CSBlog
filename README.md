@@ -71,7 +71,7 @@
 
 2. Start the frontend development server:
    ```sh
-   npm start
+   npm dev run
    ```
 
 ## Usage
