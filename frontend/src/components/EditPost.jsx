@@ -33,15 +33,14 @@ const EditPost = ({ post, onUpdate, onCancel }) => {
             let imageUrl = existingImage;
 
             if (image) {
-                const uploaded = await uploadImage(image);
-                imageUrl = uploaded.fileName;
+                const uploadedFileName = await uploadImage(image);
+                imageUrl = uploadedFileName;
 
                 if (existingImage) {
                     await deleteImage(existingImage);
                 }
             }
 
-            // Update the post
             await updatePost(post.id, {
                 title,
                 content,
