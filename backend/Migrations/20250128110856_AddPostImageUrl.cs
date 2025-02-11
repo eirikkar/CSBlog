@@ -14,15 +14,14 @@ namespace CSBlog.Migrations
                 name: "ImageUrl",
                 table: "Posts",
                 type: "TEXT",
-                nullable: true);
+                nullable: true
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "ImageUrl",
-                table: "Posts");
+            migrationBuilder.DropColumn(name: "ImageUrl", table: "Posts");
         }
     }
 }

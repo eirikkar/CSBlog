@@ -15,15 +15,14 @@ namespace CSBlog.Migrations
                 table: "Users",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: 1);
+                defaultValue: 1
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Role",
-                table: "Users");
+            migrationBuilder.DropColumn(name: "Role", table: "Users");
         }
     }
 }

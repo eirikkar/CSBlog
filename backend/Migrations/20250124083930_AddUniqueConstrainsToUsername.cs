@@ -14,15 +14,14 @@ namespace CSBlog.Migrations
                 name: "IX_Users_Username",
                 table: "Users",
                 column: "Username",
-                unique: true);
+                unique: true
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
-                name: "IX_Users_Username",
-                table: "Users");
+            migrationBuilder.DropIndex(name: "IX_Users_Username", table: "Users");
         }
     }
 }

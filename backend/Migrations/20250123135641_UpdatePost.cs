@@ -10,9 +10,7 @@ namespace CSBlog.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Posts_Users_Id",
-                table: "Posts");
+            migrationBuilder.DropForeignKey(name: "FK_Posts_Users_Id", table: "Posts");
         }
 
         /// <inheritdoc />
@@ -24,7 +22,8 @@ namespace CSBlog.Migrations
                 column: "Id",
                 principalTable: "Users",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Cascade
+            );
         }
     }
 }

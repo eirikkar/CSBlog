@@ -3,7 +3,7 @@ namespace CSBlog.Models;
 public enum UserRole
 {
     Admin,
-    User
+    User,
 }
 
 public class UserModel
