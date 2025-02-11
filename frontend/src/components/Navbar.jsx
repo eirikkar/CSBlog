@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { searchPosts } from "../api";
+import { searchPosts, verifyToken } from "../api";
 import logo from "../assets/profilbilde.svg";
 
 /**
@@ -8,14 +8,37 @@ import logo from "../assets/profilbilde.svg";
  */
 const Navbar = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check local storage for token initially
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    async function checkToken() {
+      if (!token) {
+        setIsAuthenticated(false);
+        return;
+      }
+      try {
+        // verifyToken is an API call to check if the token is valid
+        await verifyToken();
+        setIsAuthenticated(true);
+      } catch {
+        // If token verification fails, remove the token and mark as not auth
+        localStorage.removeItem("token");
+        setIsAuthenticated(false);
+      }
+    }
+    checkToken();
+  }, [token]);
 
   /**
    * Handles user logout by removing the token and navigating to login page.
    */
   const handleLogout = () => {
     localStorage.removeItem("token");
+    setIsAuthenticated(false);
     navigate("/login");
   };
 
@@ -42,7 +65,11 @@ const Navbar = () => {
           <img
             src={logo}
             alt="Logo"
-            style={{ height: "30px", marginRight: "10px", filter: "invert(1)" }}
+            style={{
+              height: "30px",
+              marginRight: "10px",
+              filter: "invert(1)",
+            }}
           />
           Backend Bytes
         </Link>
@@ -69,12 +96,15 @@ const Navbar = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <button className="btn btn-outline-success" type="submit">
+                <button
+                  className="btn btn-outline-success"
+                  type="submit"
+                >
                   Search
                 </button>
               </form>
             </li>
-            {token ? (
+            {isAuthenticated ? (
               <>
                 <li className="nav-item">
                   <Link className="nav-link" to="/admin">
