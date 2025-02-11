@@ -19,7 +19,7 @@ import "../styles/Admin.css";
  */
 const Admin = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [isTokenValid, setIsTokenValid] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [editPost, setEditPost] = useState(null);
@@ -27,14 +27,10 @@ const Admin = () => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  /**
-   * useEffect hook to verify token and load posts on component mount.
-   * Also sets up periodic token verification.
-   */
+  // Check if the token exists and is valid on component mount.
   useEffect(() => {
-    const verifyAndLoad = async () => {
+    const checkAuthAndLoadPosts = async () => {
       const token = localStorage.getItem("token");
-
       if (!token) {
         navigate("/login");
         return;
@@ -42,27 +38,29 @@ const Admin = () => {
 
       try {
         await verifyToken();
-        setIsTokenValid(true);
+        setIsAuthenticated(true);
         await fetchPosts();
       } catch (error) {
-        console.error("Verification failed:", error);
+        console.error("Token verification failed:", error);
         localStorage.removeItem("token");
-        setIsTokenValid(false);
+        setIsAuthenticated(false);
         navigate("/login");
       } finally {
         setIsLoading(false);
       }
     };
-    verifyAndLoad();
 
+    checkAuthAndLoadPosts();
+
+    // Set up periodic token verification (every 60 seconds)
     const intervalId = setInterval(async () => {
       try {
         await verifyToken();
-        setIsTokenValid(true);
+        setIsAuthenticated(true);
       } catch (error) {
         console.error("Periodic verification failed:", error);
         localStorage.removeItem("token");
-        setIsTokenValid(false);
+        setIsAuthenticated(false);
         navigate("/login");
       }
     }, 60000);
@@ -90,7 +88,7 @@ const Admin = () => {
    */
   const handleLogout = () => {
     localStorage.removeItem("token");
-    setIsTokenValid(false);
+    setIsAuthenticated(false);
     navigate("/login");
   };
 
@@ -171,7 +169,7 @@ const Admin = () => {
     return tmp.textContent || tmp.innerText || "";
   };
 
-  if (!isTokenValid) {
+  if (!isAuthenticated) {
     return (
       <div className="container text-center mt-5">
         <h3>Session expired. Please login again.</h3>
@@ -227,7 +225,9 @@ const Admin = () => {
                     </div>
                   )}
                   <div className="card-body d-flex flex-column">
-                    <h5 className="card-title">{post.title || "Untitled"}</h5>
+                    <h5 className="card-title">
+                      {post.title || "Untitled"}
+                    </h5>
                     <p className="card-text">
                       {stripHtml(post.content).substring(0, 100)}...
                     </p>
