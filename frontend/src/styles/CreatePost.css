@@ -1,8 +1,8 @@
 .quill-wrapper {
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
 }
 
 .quill-wrapper.border-danger {
-    border-color: #dc3545;
+  border-color: #dc3545;
 }

@@ -1,5 +1,5 @@
-import { Modal, Button } from "react-bootstrap";
-import PropTypes from "prop-types";
+import { Modal, Button } from 'react-bootstrap'
+import PropTypes from 'prop-types'
 
 const ConfirmDialog = ({
   show,
@@ -18,16 +18,16 @@ const ConfirmDialog = ({
         <p>{message}</p>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onCancel} disabled={isDeleting}>
+        <Button variant='secondary' onClick={onCancel} disabled={isDeleting}>
           No
         </Button>
-        <Button variant="danger" onClick={onConfirm} disabled={isDeleting}>
-          {isDeleting ? "Deleting..." : "Yes"}
+        <Button variant='danger' onClick={onConfirm} disabled={isDeleting}>
+          {isDeleting ? 'Deleting...' : 'Yes'}
         </Button>
       </Modal.Footer>
     </Modal>
-  );
-};
+  )
+}
 
 ConfirmDialog.propTypes = {
   show: PropTypes.bool.isRequired,
@@ -36,6 +36,6 @@ ConfirmDialog.propTypes = {
   onConfirm: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   isDeleting: PropTypes.bool,
-};
+}
 
-export default ConfirmDialog;
+export default ConfirmDialog
