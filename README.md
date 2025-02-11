@@ -12,7 +12,6 @@
 
    ```sh
    cd backend
-   mkdir -p /Data/Database
    ```
 
 2. Install the required .NET tools:
