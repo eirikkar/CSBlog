@@ -1,7 +1,3 @@
-secrets:
-  jwt_key:
-    file: ./secrets/jwt_key.txt
-
 services:
   backend:
     build:
