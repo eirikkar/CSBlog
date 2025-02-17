@@ -20,7 +20,7 @@ string GetSecret(string secretFilePath, string fallback)
 }
 
 var configJwtKey = builder.Configuration["Jwt:Key"];
-var jwtKey = GetSecret("/run/secrets/jwt_key", configJwtKey);
+var jwtKey = GetSecret("/etc/secrets/jwt_key.txt", builder.Configuration["Jwt:Key"]);
 
 if (string.IsNullOrEmpty(jwtKey))
 {
