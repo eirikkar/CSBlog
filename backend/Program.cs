@@ -14,13 +14,22 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=Data/Database/database.db");
 });
 
-var jwtSettings = builder.Configuration.GetSection("Jwt");
-var keyString = jwtSettings["Key"];
-if (string.IsNullOrEmpty(keyString))
+string GetSecret(string secretFilePath, string fallback)
+{
+    return File.Exists(secretFilePath) ? File.ReadAllText(secretFilePath).Trim() : fallback;
+}
+
+var configJwtKey = builder.Configuration["Jwt:Key"];
+var jwtKey = GetSecret("/run/secrets/jwt_key", configJwtKey);
+
+if (string.IsNullOrEmpty(jwtKey))
 {
     throw new ArgumentNullException("Jwt:Key", "JWT key is not configured.");
 }
-var key = Encoding.UTF8.GetBytes(keyString);
+
+var key = Encoding.UTF8.GetBytes(jwtKey);
+
+var jwtSettings = builder.Configuration.GetSection("Jwt");
 
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -42,7 +51,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
     {
-        builder.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod();
+        builder.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod();
     });
 });
 
@@ -78,8 +87,10 @@ app.UseStaticFiles(
 );
 
 app.UseRouting();
+
 app.UseCors();
-app.UseHttpsRedirection();
+
+//app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
