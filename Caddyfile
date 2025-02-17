@@ -1,0 +1,10 @@
+localhost {
+    root * /usr/share/caddy/react-build
+    file_server
+    tls internal
+
+    # Reverse proxy API calls to the backend service
+    handle /api/* {
+        reverse_proxy backend:80
+    }
+}

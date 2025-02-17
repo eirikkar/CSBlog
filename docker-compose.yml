@@ -1,0 +1,46 @@
+secrets:
+  jwt_key:
+    file: ./secrets/jwt_key.txt
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    environment:
+      ASPNETCORE_URLS: "http://+:80"
+      JWT_KEY_FILE: "/run/secrets/jwt_key"
+    ports:
+      - "5073:80"
+    secrets:
+      - jwt_key
+    volumes:
+      - backend_data:/app/Data
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  backend_data:
+  caddy_data:
+  caddy_config:
