@@ -47,11 +47,15 @@ builder
         };
     });
 
+var allowedOrigin = builder.Environment.IsDevelopment()
+    ? "http://localhost:3000"
+    : "https://blog.hjemmesky.org";
+
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder =>
+    options.AddDefaultPolicy(policy =>
     {
-        builder.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod();
+        policy.WithOrigins(allowedOrigin).AllowAnyHeader().AllowAnyMethod();
     });
 });
 
