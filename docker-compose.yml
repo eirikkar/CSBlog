@@ -1,3 +1,7 @@
+secrets:
+  jwt_key:
+    file: ./secrets/jwt_key.txt
+
 services:
   backend:
     build:
@@ -6,12 +10,14 @@ services:
     container_name: backend
     environment:
       ASPNETCORE_URLS: "http://+:80"
-      JWT_KEY_FILE: "/etc/secrets/jwt_key.txt"
+      JWT_KEY_FILE: "/run/secrets/jwt_key.txt"
     ports:
       - "5073:80"
+    secrets:
+      - jwt_key
     volumes:
       - backend_data:/app/Data
-      - ./secrets:/etc/secrets
+      - ./secrets:/run/secrets
 
   frontend:
     build:
