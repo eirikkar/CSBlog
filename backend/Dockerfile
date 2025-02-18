@@ -1,4 +1,7 @@
+# syntax = docker/dockerfile:1.2
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+
 WORKDIR /src
 
 # Copy the project file(s) and restore as distinct layers

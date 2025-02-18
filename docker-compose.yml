@@ -17,7 +17,7 @@ services:
       - jwt_key
     volumes:
       - backend_data:/app/Data
-      - ./secrets:/run/secrets
+      - ./secrets:/etc/secrets
 
   frontend:
     build:
