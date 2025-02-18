@@ -1,3 +1,7 @@
+secrets:
+  jwt_key:
+    file: ./secrets/jwt_key.txt
+
 services:
   backend:
     build:
@@ -5,12 +9,15 @@ services:
       dockerfile: Dockerfile
     container_name: backend
     environment:
-      ASPNETCORE_URLS: "http://+:80" #Replace ASPNETCORE_URLS
-      JWT_SECRET: "your_jwt_secret_here"  # Replace with your actual JWT secret
+      ASPNETCORE_URLS: "http://+:80"
+      JWT_KEY_FILE: "/etc/secrets/jwt_key.txt"
     ports:
       - "5073:80"
+    secrets:
+      - jwt_key
     volumes:
       - backend_data:/app/Data
+      - ./secrets:/etc/secrets
 
   frontend:
     build:
