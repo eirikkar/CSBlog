@@ -172,13 +172,20 @@ public class PostController : ControllerBase
             return NotFound();
         }
 
-        // Delete associated image
+        // Attempt to delete associated image
         if (!string.IsNullOrEmpty(post.ImageUrl))
         {
             var imagePath = Path.Combine(_env.ContentRootPath, "Uploads", post.ImageUrl);
-            if (System.IO.File.Exists(imagePath))
+            try
             {
-                System.IO.File.Delete(imagePath);
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
 
