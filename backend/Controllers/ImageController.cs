@@ -80,10 +80,16 @@ public class ImageController : ControllerBase
         var filePath = Path.Combine(uploadsPath, fileName);
 
         if (!System.IO.File.Exists(filePath))
-            return NotFound();
+            return NoContent();
 
-        // Delete the file from the server
-        System.IO.File.Delete(filePath);
+        try
+        {
+            System.IO.File.Delete(filePath);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error deleting file: {ex.Message}");
+        }
         return NoContent();
     }
 }
