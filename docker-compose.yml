@@ -1,3 +1,7 @@
+secrets:
+  jwt_key:
+    file: ./secrets/jwt_key.txt
+
 services:
   backend:
     build:
@@ -14,7 +18,7 @@ services:
     volumes:
       - backend_data:/app/Data
       - ./secrets:/etc/secrets
-      - uploads_data:/app/Uploads  
+      - uploads_data:/app/Uploads
 
   frontend:
     build:
@@ -42,4 +46,4 @@ volumes:
   backend_data:
   caddy_data:
   caddy_config:
-  uploads_data:  
+  uploads_data:
