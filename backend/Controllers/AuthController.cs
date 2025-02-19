@@ -19,11 +19,13 @@ namespace CSBlog.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly string _jwtKey;
 
-        public AuthController(AppDbContext context, IConfiguration configuration)
+        public AuthController(AppDbContext context, IConfiguration configuration, string jwtKey)
         {
             _context = context;
             _configuration = configuration;
+            _jwtKey = jwtKey;
         }
 
         /// <summary>
@@ -268,13 +270,7 @@ namespace CSBlog.Controllers
                 new Claim(ClaimTypes.Role, user.Role.ToString() ?? "User"),
             };
 
-            var keyString = _configuration["Jwt:Key"];
-            if (string.IsNullOrEmpty(keyString))
-            {
-                throw new ArgumentNullException("Jwt:Key", "JWT key is not configured.");
-            }
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(

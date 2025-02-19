@@ -31,6 +31,8 @@ var key = Encoding.UTF8.GetBytes(jwtKey);
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 
+builder.Services.AddSingleton(jwtKey);
+
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
