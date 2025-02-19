@@ -1,120 +1,138 @@
-## Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [Node.js](https://nodejs.org/) (for the frontend)
-- [dotnet-ef](https://docs.microsoft.com/en-us/ef/core/cli/dotnet) (Entity Framework Core CLI)
+# CSBlog
+
+A sample application featuring a .NET 8 backend and a React frontend.
 
 ## Installation
 
-### Backend
+The application consists of two main parts: the **backend** and the **frontend**. The provided Dockerfiles and Docker Compose file handle building and running these components along with a reverse proxy (Caddy) that provides HTTPS, automatic certificate management, and appropriate routing.
 
-1. Navigate to the backend directory and create a folder for your database:
+### 1. Clone the Repository
 
-   ```sh
-   cd backend
-   ```
+```sh
+git clone https://github.com/eirikkar/CSBlog.git
+cd CSBlog
+```
 
-2. Install the required .NET tools:
+### 2. Secrets and Persistent Data
 
-   ```sh
-   dotnet tool install --global dotnet-ef
-   ```
+- Create a folder called `secrets` in the project root.
+- Place your JWT secret in `secrets/jwt_key.txt`.
 
-3. Restore the .NET dependencies:
+The Docker Compose file mounts this folder into the backend and uses it as a Docker secret.
 
-   ```sh
-   dotnet restore
-   ```
+---
 
-4. Apply the database migrations:
-   ```sh
-   dotnet ef migrations add InitialCreate
-   dotnet ef database update
-   ```
 
-### Frontend
+## Docker Setup
 
-1. Navigate to the frontend directory:
+The project includes a `docker-compose.yml` file that defines three services:
 
-   ```sh
-   cd ../frontend
-   ```
+- **backend**: Builds the .NET 8 backend, applies EF Core migrations, and persists data/uploads.
+- **frontend**: Builds the React/Vite frontend.
+- **caddy**: Uses the official Caddy image to provide HTTPS and route requests to the backend and frontend.
 
-2. Install the required Node.js dependencies:
-   ```sh
-   npm install
-   ```
 
-## Generating a Certificate
+### Caddyfile
 
-To run the application with HTTPS, you need to create a certificate. Follow these steps:
+Below is an example `Caddyfile` configured for a production domain (e.g., `blog.hjemmesky.org`):
 
-1. Generate a self-signed certificate:
+```caddyfile
+blog.hjemmesky.org {
+    encode gzip
+    
+    # Proxy requests for /uploads to the backend (which serves static files)
+    handle /uploads/* {
+        reverse_proxy backend:80
+    }
 
-   ```sh
-   openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
-   ```
+    # Proxy API requests to the backend
+    handle /api/* {
+        reverse_proxy backend:80
+    }
+    
+    # All other requests go to the frontend
+    reverse_proxy frontend:3000
+}
+```
+---
 
-2. Convert the certificate to a PFX file:
+### Using Docker Compose
 
-   ```sh
-   openssl pkcs12 -export -out certificates/mycert.pfx -inkey key.pem -in cert.pem
-   ```
+From the project root, run:
 
-3. Update the `appsettings.json` file with the path to your certificate and its password:
-   ```json
-   "Kestrel": {
-     "Endpoints": {
-       "Https": {
-         "Url": "https://localhost:5073",
-         "Certificate": {
-           "Path": "certificates/mycert.pfx",
-           "Password": "yourCertificatePassword"
-         }
-       }
-     }
-   }
-   ```
+```sh
+docker compose up --build
+```
 
-Make sure to replace `"yourCertificatePassword"` with the actual password you used when creating the PFX file.
+This command will:
+- Build the backend and frontend images.
+- Start the containers.
+- Start Caddy to route incoming traffic from ports 80 and 443.
 
-## Starting the Application
+**Testing:**
+- **Frontend:** Open your browser and navigate to `https://blog.hjemmesky.org`.
+- **Backend API:** Access API endpoints at `https://blog.hjemmesky.org/api`.
 
-### Backend
+---
 
-1. Navigate to the backend directory:
+## Deployment Automation
 
-   ```sh
-   cd backend
-   ```
+Below is a sample bash script (`deploy.sh`) that will:
+- Stop the current containers.
+- Pull the latest code from Git.
+- Rebuild and restart Docker Compose services in detached mode.
+- Show the status of the containers.
 
-2. Start the backend server:
-   ```sh
-   dotnet run
-   ```
+Create a file named `deploy.sh` at the root of your project with the following content:
 
-### Frontend
+```bash
+#!/bin/bash
+# deploy.sh - Updates code, rebuilds, and restarts Docker Compose services
 
-1. Navigate to the frontend directory:
+set -e
 
-   ```sh
-   cd ../frontend
-   ```
+# Use the current directory as the project directory
+PROJECT_DIR="$(pwd)"
 
-2. Start the frontend development server:
-   ```sh
-   npm dev run
-   ```
+echo "Changing to project directory: $PROJECT_DIR"
+cd "$PROJECT_DIR" || { echo "Failed to change directory"; exit 1; }
 
-## Usage
+echo "Stopping current Docker Compose services..."
+docker compose down
 
-1. Open your web browser and navigate to `http://localhost:5173` to access the frontend.
-2. Use the admin credentials to log in:
-   - Username: `admin`
-   - Password: `test`
-3. You can manage blog posts and user profiles from the admin panel.
+echo "Pulling latest changes from Git..."
+git pull origin main
+
+echo "Rebuilding and restarting Docker Compose services..."
+docker compose up --build -d
+
+echo "Deployment complete. Current status:"
+docker compose ps
+```
+
+Make the script executable:
+
+```sh
+chmod +x deploy.sh
+```
+
+Then run it with:
+
+```sh
+./deploy.sh
+```
+
+---
+
 
 ## Notes
 
-- The admin user is created automatically when the database is initialized. You can change the admin user details in the admin panel.
-- Ensure that the backend server is running before starting the frontend development server.
+- **Data Persistence:**  
+  Uploaded files are stored in the `uploads_data` volume and backend data in the `backend_data` volume.
+- **Secrets:**  
+  Ensure that the `secrets/jwt_key.txt` file exists and contains your JWT secret.
+- **HTTPS:**  
+  In production, Caddy automatically manages HTTPS certificates via Let’s Encrypt for valid domains.
+- **Deployment:**  
+  Use the provided `deploy.sh` script (or integrate it into your CI/CD pipeline) to update your server automatically.
