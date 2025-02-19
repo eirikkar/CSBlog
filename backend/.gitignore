@@ -5,6 +5,7 @@
 # dotenv files
 .env
 certificates/
+appsettings.json
 
 # User-specific files
 *.rsuser
