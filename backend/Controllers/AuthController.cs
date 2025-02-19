@@ -196,13 +196,7 @@ namespace CSBlog.Controllers
                 }
 
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var keyString = _configuration["Jwt:Key"];
-                if (string.IsNullOrEmpty(keyString))
-                {
-                    throw new ArgumentNullException("Jwt:Key", "JWT key is not configured.");
-                }
-
-                var key = Encoding.ASCII.GetBytes(keyString);
+                var key = Encoding.ASCII.GetBytes(_jwtKey);
 
                 var validationParameters = new TokenValidationParameters
                 {
